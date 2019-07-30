@@ -1,4 +1,4 @@
-﻿; ###VERSION:0.3###
+﻿; ###VERSION:0.6###
 ; тестовая сборка для обновлений71 ПРОВЕРКА КРАКЕНА НА БОМ
 
 F8::
@@ -39,16 +39,16 @@ Loop, read, OGIBDD.ahk, `r, `n
     if (A_Index > 50)
     {
         if (keyIndex > 50)
-            CustomCodeText = %CustomCodeText% `n %A_LoopReadLine%
+            CustomCodeText = %CustomCodeText%`n%A_LoopReadLine%
 
         If InStr(A_LoopReadLine, key)
         {
           keyIndex=%A_index%
           keyIndex++
-          CustomCodeText = %A_LoopReadLine%
         }
     }
 }
+FileDelete, OGIBDD.ahk
 UrlDownloadToFile, https://raw.githubusercontent.com/ViTokarev/malinovka/master/OGIBDD.ahk, OGIBDD.ahk
 FileAppend, %CustomCodeText%, OGIBDD.ahk
 SplashTextOff
