@@ -79,7 +79,6 @@ Gui Add, Text,,
   В игре нужно отключить КТРЛ на атаку.
 )
 Gui +Lastfound +ToolWindow +AlwaysOnTop -Caption -Border
-Gui, Add, Text, c0000FF gLink_1 vLink_1, http://www.autohotkey.com
 Gui,  add,  button, gChangeName,  Изменить имя в приветствии (удостоверение)
 WinSet TransColor, 1
 Gui Show, NA
