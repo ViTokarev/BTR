@@ -18,7 +18,7 @@ UrlDownloadToVar(URL, UserAgent = "")
    return Text
 }
 If InStr(Text, version)
-  MsgBox, У вас установлена последняя версия ahk ОГИБДД
+  goto UpdateFail
 Else
   {
   MsgBox, 4, Обновление, Есть новая версия АНК. Вы хотите обновить?`n`n(займет пару сек)
