@@ -1,6 +1,8 @@
 ﻿; ###VERSION:0.9###
 ; тестовая сборка
 
+if !FileExist("%APPDATA%\Malinovka\help_menu")
+  FileCreateDir, %APPDATA%\Malinovka\help_menu
 Phelp_help = %APPDATA%\Malinovka\help_menu\help_help.txt
 Phelp_hotkey = %APPDATA%\Malinovka\help_menu\help_hotkey.txt
 Phelp_zakon_kirminal = %APPDATA%\Malinovka\help_menu\help_zakon_kirminal.txt
@@ -261,7 +263,16 @@ NumPad3:: ; надеть наручники
   SendInput, {F6}/cuff {space}
 return
 
-!NumPad3:: ; снять наручники
+!NumPad3::
+SendMessage, 0x50,, 0x4190419,, A 
+Sendinput, {F6}/me заломал руку и повёл задержанного за собой {Enter} 
+sleep 500 
+Sendinput, {F6}Если будет совершена попытка побега я буду вынужден применить табельное оружие! {Enter} 
+sleep 1000 
+Sendinput, {F6}/tome {space} 
+Return
+
+^NumPad3:: ; снять наручники
   SendMessage, 0x50,, 0x4190419,, A
   SendInput, {F6}/me вытащил из нагрудного кармана ключ от наручников{enter}
   sleep 500
@@ -284,6 +295,11 @@ NumPad4:: ; шлагбаум
   SendInput {F6}/do Шлагбаум активирован.{Enter}
   Sleep 100
   Sendinput,{F6}/post{Enter}
+return
+
+!NumPad4:: ; ремень безопасности
+  SendMessage, 0x50,, 0x4190419,, A
+  Sendinput,{F6}/check{space}
 return
 
 NumPad5:: ; посадить задержанного в машину
@@ -323,11 +339,6 @@ return
   Sleep, 500
   Sendinput, {F6}/n /me расписался{ENTER}
   Sendinput, {F6}/ticket{space}
-return
-
-^NumPad6:: ; ремень безопасности
-  SendMessage, 0x50,, 0x4190419,, A
-  Sendinput,{F6}/check{space}
 return
 
 NumPad7:: ; передать человека в тюрьму
