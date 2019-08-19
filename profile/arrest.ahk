@@ -1,6 +1,4 @@
 ﻿; КПЗ передал в тюрму (арестовал)
-Hotkey, %keyarrest%, arrest
-return
 
 arrest: ; ВАЖНО Эту строку И ВЫШЕ не трогать
   SendMessage, 0x50,, 0x4190419,, A
