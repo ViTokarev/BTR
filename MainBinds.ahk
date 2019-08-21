@@ -4,6 +4,7 @@ IniRead, names, configBTR.ini, mandata, yourname
 IniRead, rang, configBTR.ini, mandata, yourrang
 SetWorkingDir, %A_AppData%\Malinovka\profile\
 
+SoundBeep, 750
 goto MainCode
 
 Ins::
