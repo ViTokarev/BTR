@@ -1,4 +1,4 @@
-﻿; ###VERSION.0.1###
+﻿; ###VERSION.0.4###
 
 SetWorkingDir, %A_AppData%\Malinovka
 
@@ -216,7 +216,9 @@ class MainInterface
 			{
 				FileAppend, %inikeytotext%, %A_AppData%\Malinovka\MainBinds.ahk
 				if (%hotkeymany% != "")
+				{
 					FileAppend, %hotkeymany%, %A_AppData%\Malinovka\MainBinds.ahk
+				}
 				FileAppend, `n`Return, %A_AppData%\Malinovka\MainBinds.ahk
 				FileAppend, %includetotext%, %A_AppData%\Malinovka\MainBinds.ahk
 				Break
@@ -271,7 +273,7 @@ if (names == "ERROR")
 	goto DonwloadAllAHKOffical
 	}
 ;CHECK UPDATE
-FileReadLine, version, BRT.ahk, 1
+FileReadLine, version, %A_ScriptDir%\BTR.ahk, 1
 text := UrlDownloadToVar("https://raw.githubusercontent.com/ViTokarev/malinovka/master/BTR.ahk")
 UrlDownloadToVar(URL, UserAgent = "")
 {
@@ -287,20 +289,20 @@ UrlDownloadToVar(URL, UserAgent = "")
    return Text
 }
 	If InStr(Text, version)
-		MsgBox, обновление не требуется
+		goto UpdateOk
 	Else
-	{
-	  MsgBox, 4, Обновление, Есть новая версия АНК. Вы хотите обновить?`n`n(займет пару сек)
-	{
-	IfMsgBox Yes
-	{
-	UrlDownloadToFile, https://raw.githubusercontent.com/ViTokarev/malinovka/master/BTR.ahk, BTR.ahk
-	Reload
-	}
-	Else
-		MsgBox, ну ок, но позже обновите.
-	}
-}
+		{
+		Gui, -AlwaysOnTop
+		MsgBox, 4, Обновление, Есть новая версия программы! Вы хотите обновить?`n`n(займет пару сек)
+			IfMsgBox Yes
+				{
+				UrlDownloadToFile, https://raw.githubusercontent.com/ViTokarev/malinovka/master/BTR.ahk, %A_ScriptDir%\BTR.ahk
+				Reload
+				}
+			Else
+				MsgBox, Ок, конечно, но могли добавить новые фичи для стабильности.
+		}
+UpdateOk:
 
 MainInterface.Create_gui()
 SoundBeep, 750
