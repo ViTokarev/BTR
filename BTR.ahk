@@ -1,4 +1,4 @@
-﻿; ###VERSION.0.4.1###
+﻿; ###VERSION.0.4.2###
 
 SetWorkingDir, %A_AppData%\Malinovka
 
@@ -200,6 +200,8 @@ class MainInterface
 		FileAppend, %CustomCodeText%, MainBinds.ahk
 		y := this.sumscript
 		x := 0
+		b := ""
+		key := ""
 		Loop
 		{
 			x++
@@ -207,20 +209,29 @@ class MainInterface
 			nameahk := this.list_hotkey[x][3]
 			key     := this.list_hotkey[x][2]
 			temping := this.list_hotkey[x][1]
-			inikeytotext = %inikeytotext%`nIniRead`, key%temping%`, config.ini`, %temping%`, key
+			
+			if (key = b)
+			{
+				goto labelYes
+			}
+			else
+			{
+				inikeytotext = %inikeytotext%`nIniRead`, key%temping%`, config.ini`, %temping%`, key
+				forguikey = %forguikey%`n%key% %description%
+				hotkeymany = %hotkeymany%`nHotkey, `%key%temping%`%, %temping%
+				addresahk = %A_AppData%\Malinovka\profile\%nameahk%
+				includetotext = %includetotext%`n#Include %addresahk%
+			}
+			labelYes:
+			;inikeytotext = %inikeytotext%`nIniRead`, key%temping%`, config.ini`, %temping%`, key
+			
 			;MsgBox, Ini load
-			addresahk = %A_AppData%\Malinovka\profile\%nameahk%
-			includetotext = %includetotext%`n#Include %addresahk%
-			hotkeymany = %hotkeymany%`nHotkey, `%key%temping%`%, %temping%
-
-			; gui ОПИСАНИЕ НА DEL
-			forguikey = %forguikey%`n%key% %description%
+			
 
 			;MsgBox, % includetotext
 			if (x == this.sumscript)
 			{
 				FileAppend, %inikeytotext%, %A_AppData%\Malinovka\MainBinds.ahk
-				;if (%hotkeymany% != "")
 				FileAppend, %hotkeymany%, %A_AppData%\Malinovka\MainBinds.ahk
 				FileAppend, `n`Return, %A_AppData%\Malinovka\MainBinds.ahk
 				FileAppend, %includetotext%, %A_AppData%\Malinovka\MainBinds.ahk
@@ -309,7 +320,6 @@ UrlDownloadToVar(URL, UserAgent = "")
 UpdateOk:
 
 MainInterface.Create_gui()
-SoundBeep, 750
 return
 
 Ins::goto GuiClose

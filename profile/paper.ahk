@@ -1,7 +1,7 @@
 ﻿; Справка: !!ВСЕ ВАШИ НАЗНАЧЕНЫЕ КЛАВИШИ!!
 
 paper: ; ВАЖНО Эту строку И ВЫШЕ не трогать
-FileRead, tempfile, %A_AppData%\Malinovka\help_menu\help_zakon_kirminal.txt
+FileRead, tempfile, %A_AppData%\Malinovka\profile\help_gui
   Gui Add, Text,, % tempfile
   BlockInput on
   Gui +Lastfound +ToolWindow +AlwaysOnTop -Caption -Border
