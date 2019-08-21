@@ -1,12 +1,8 @@
-﻿; Справка: пока пуста
-Hotkey, %keypaper%, paper
-return
+﻿; Справка: !!ВСЕ ВАШИ НАЗНАЧЕНЫЕ КЛАВИШИ!!
 
 paper: ; ВАЖНО Эту строку И ВЫШЕ не трогать
-  Gui Add, Text,,
-  (
-    Что-то ещё
-  )
+FileRead, tempfile, %A_AppData%\Malinovka\help_menu\help_zakon_kirminal.txt
+  Gui Add, Text,, % tempfile
   BlockInput on
   Gui +Lastfound +ToolWindow +AlwaysOnTop -Caption -Border
   WinSet TransColor, 1

@@ -1,4 +1,4 @@
-﻿; ###VERSION.0.4###
+﻿; ###VERSION.0.4.1###
 
 SetWorkingDir, %A_AppData%\Malinovka
 
@@ -203,6 +203,7 @@ class MainInterface
 		Loop
 		{
 			x++
+			description := this.list_hotkey[x][4]
 			nameahk := this.list_hotkey[x][3]
 			key     := this.list_hotkey[x][2]
 			temping := this.list_hotkey[x][1]
@@ -211,16 +212,19 @@ class MainInterface
 			addresahk = %A_AppData%\Malinovka\profile\%nameahk%
 			includetotext = %includetotext%`n#Include %addresahk%
 			hotkeymany = %hotkeymany%`nHotkey, `%key%temping%`%, %temping%
+
+			; gui ОПИСАНИЕ НА DEL
+			forguikey = %forguikey%`n%key% %description%
+
 			;MsgBox, % includetotext
 			if (x == this.sumscript)
 			{
 				FileAppend, %inikeytotext%, %A_AppData%\Malinovka\MainBinds.ahk
-				if (%hotkeymany% != "")
-				{
-					FileAppend, %hotkeymany%, %A_AppData%\Malinovka\MainBinds.ahk
-				}
+				;if (%hotkeymany% != "")
+				FileAppend, %hotkeymany%, %A_AppData%\Malinovka\MainBinds.ahk
 				FileAppend, `n`Return, %A_AppData%\Malinovka\MainBinds.ahk
 				FileAppend, %includetotext%, %A_AppData%\Malinovka\MainBinds.ahk
+				FileAppend, %forguikey%, %A_AppData%\Malinovka\profile\help_gui.txt
 				Break
 			}
 		}
@@ -396,7 +400,7 @@ IfMsgBox Yes
 	UrlDownloadToFile https://raw.githubusercontent.com/ViTokarev/malinovka/master/profile/config.ini, config.ini
 	Gui, 4:Destroy
 	}
-MainInterface.Create_gui()
+Reload
 Return
 
 ChangeName:

@@ -1,6 +1,4 @@
 ﻿; Справка: Уголовный кодекс (держать альт)
-Hotkey, %keyzakonYK%, zakonYK
-return
 
 zakonYK: ; ВАЖНО Эту строку И ВЫШЕ не трогать
 FileRead, tempfile, %A_AppData%\Malinovka\help_menu\help_zakon_kirminal.txt
