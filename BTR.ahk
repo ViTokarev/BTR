@@ -1,4 +1,4 @@
-﻿; ###VERSION.0.4.4###
+﻿; ###VERSION.0.4.5###
 
 SetWorkingDir, %A_AppData%\Malinovka
 
@@ -416,7 +416,7 @@ IfMsgBox Yes
 	UrlDownloadToFile https://raw.githubusercontent.com/ViTokarev/malinovka/master/profile/config.ini, config.ini
 	Gui, 4:Destroy
 	}
-Reload
+MainInterface.Create_gui()
 Return
 
 ChangeName:
