@@ -177,6 +177,8 @@ class MainInterface
 	}
 
 	Reconfig_ahk_to_Main(){
+	SetWorkingDir, %A_AppData%\Malinovka\profile
+	FileDelete, help_gui.txt
 	SetWorkingDir, %A_AppData%\Malinovka
 		key := "; END OF UPDATE CODE" ; СДЕЛАТЬ КЛЮЧ В ВЭБЕ, ВТОРОЙ СТРОКОЙ?
 		keyIndex = 0
