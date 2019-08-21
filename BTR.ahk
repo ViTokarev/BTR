@@ -1,4 +1,4 @@
-﻿; ###VERSION.0.4.3###
+﻿; ###VERSION.0.4.4###
 
 SetWorkingDir, %A_AppData%\Malinovka
 
@@ -37,6 +37,7 @@ class MainInterface
 		Gui, 1:+AlwaysOnTop
 		LV_Delete()
 		this.Load_ini_hotkey()
+
 		Return
 	}
 
@@ -100,10 +101,11 @@ class MainInterface
 		fileway := Hotkeyname . ".ahk"
 		FileRead, fileahk, % fileway
 		Gui, 2:Add, Text,, В КОНЦЕ КАЖДОГО СКРИПТА ДОЛЖЕН БЫТЬ: `Return
-		Gui, 2:Add, Edit, w700 r40 text vcode, % fileahk
+		Gui, 2:Add, Edit, w700 r30 text vcode, % fileahk
 		IniRead, key, config.ini, %Hotkeyname%, key
 		Gui, 2:Add, Text,, В этом поле можно задать клавиши на которые сработает бинд (ВКЛЮЧИТЕ АНГЛ РАСКЛАДКУ`!`!`!`!)
 		Gui, 2:Add, Hotkey, vNewkey, %key%
+		Gui, 2:Add, Button, gKeyOff, Отключить кнопку
 		Gui, 2:Add, Button, gSaveCode, OK
 		Gui, 1:-AlwaysOnTop
 		Gui, 2:Show ;, y400 w400 h400, Редактор бинда
@@ -204,6 +206,8 @@ class MainInterface
 		x := 0
 		b := ""
 		key := ""
+		FileAppend, AHK by Vitalik_Tokarev`n, %A_AppData%\Malinovka\profile\help_gui.txt
+		FileAppend, ! - это АЛЬТ   ||   ^ - это CTRL`n, %A_AppData%\Malinovka\profile\help_gui.txt
 		Loop
 		{
 			x++
@@ -437,4 +441,11 @@ Return
 AddersHelp:
 Gui, 1:-AlwaysOnTop
 MsgBox, ОФИЦАЛЬНЫЙ КПК ОГИБДД Малиновка 01`n`nСвежие версии - https://github.com/ViTokarev/malinovka `n`nВК - https://vk.com/wagneror `n`nDiscord - sed_oi#7351`n`nВсегда ваш - Полковник ОГИБДД Токарев В.П. (Август 2019)
+Return
+
+KeyOff:
+	SetWorkingDir, %A_AppData%\Malinovka\profile
+	IniWrite, "", config.ini, %Hotkeyname%, key
+	MainInterface.Edit_script_config(Hotkeyname)
+	SetWorkingDir, %A_AppData%\Malinovka
 Return
