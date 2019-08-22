@@ -1,6 +1,4 @@
 ﻿; Обыскать человека
-Hotkey, %keysearch%, search
-return
 
 search: ; ВАЖНО Эту строку И ВЫШЕ не трогать
   SendMessage, 0x50,, 0x4190419,, A
