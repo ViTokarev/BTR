@@ -12,10 +12,10 @@ search: ; ВАЖНО Эту строку И ВЫШЕ не трогать
   Sleep 1500
   Sendinput,{F6}/me начал обыскивать человека напротив.{Enter}
   Sleep 1500
-  Sendinput,{F6}/me ощупывает торс человека напротив. [1/3].{Enter}
+  Sendinput,{F6}/me ощупывает торс человека напротив.{Enter}
   Sleep 1500
-  Sendinput,{F6}/me обыскивает карманы человека напротив. [2/3].{Enter}
+  Sendinput,{F6}/me обыскивает карманы человека напротив.{Enter}
   Sleep 1500
-  Sendinput,{F6}/me ощупывает ноги и руки человека напротив. [3/3].{Enter}
+  Sendinput,{F6}/me ощупывает ноги и руки человека напротив.{Enter}
   Sendinput,{F6}/search{Space}
 Return
