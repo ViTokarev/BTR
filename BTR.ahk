@@ -1,4 +1,4 @@
-﻿; ###VERSION.0.4.6###
+﻿; ###VERSION.0.4.7###
 
 SetWorkingDir, %A_AppData%\Malinovka
 
@@ -45,10 +45,10 @@ class MainInterface
 
 	GuiMainMenu(){
 		Gui, -AlwaysOnTop
-		
-		Gui, 10:Add, Button, gOpenFolderMain, Открыть папку АНК
-		Gui, 10:Add, Button, gOpenFolderScreens, Открыть папку со скринами малиновки
-
+		Gui, 10:Font, bolt s14
+		Gui, 10:Add, Button, gOpenFolderMain, Папка АНК
+		Gui, 10:Add, Button, gOpenFolderScreens, СКРИНЫ
+		Gui, 10:Add, Button, gOpenChatlog, Chatlog
 		Gui, 10:Add, Button, gAddersHelp, Связь с разрабом
 
 		Gui, 10:Show, NA
@@ -504,5 +504,10 @@ Return
 
 OpenFolderScreens:
 	Run, %A_MyDocuments%\Malinovka\screens
+	Gui, -AlwaysOnTop
+Return
+
+OpenChatlog:
+	Run, %A_MyDocuments%\Malinovka\chatlog.txt
 	Gui, -AlwaysOnTop
 Return
