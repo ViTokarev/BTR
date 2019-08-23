@@ -1,4 +1,4 @@
-﻿; ###VERSION.0.4.5###
+﻿; ###VERSION.0.4.6###
 
 SetWorkingDir, %A_AppData%\Malinovka
 
@@ -8,19 +8,21 @@ class MainInterface
 	list_hotkey := []
 	rownumber :=
 	sumscript :=
+	firstlaunch :=
 
 	Create_gui(){
 		Gui, 1:Default
-		Gui, 1:Add, ListView, r20 w700 y50 gGLV Grid AltSubmit, Название|Hotkeys|Описание функции
+		Gui, 1:Add, ListView, r20 w650 y50 gGLV Grid AltSubmit, Название|Hotkeys|Описание функции
+		Gui, 1:Add, Text, text cRed, ВЫЗВАТЬ ЭТОТ МЕНЕДЖЕР КНОПКА: INSERT
 		Gui, 1:Add, Text, text, Alt+R - перезагрузит АНК. (даже во время игры)    Использовать бинды сможете после закрытия этого окна.
-		Gui, 1:Add, Text, text x600 y423, AHK by Vitalik_Tokarev
+		Gui, 1:Add, Text, text x500 y423, AHK by Vitalik_Tokarev
 		Gui, 1:Add, Button, x10 y10 gLableGetGotkey, Добавить
 		Gui, 1:Add, Button, x70 y10 gLableDeleteHotkey, Удалить
-		Gui, 1:Add, Button, x127 y10 gChangeName, Изменить свое имя (речь)
-		Gui, 1:Add, Button, x267 y10 gOpenFolderMain, Открыть папку АНК
-		Gui, 1:Add, Text, text cRed, ВЫЗВАТЬ ЭТОТ МЕНЕДЖЕР КНОПКА: INSERT
-		Gui, 1:Add, Button, x377 y10 gDonwloadAllAHKOffical, Восстановить АНК (удалить всё и скачать)
-		Gui, 1:Add, Button, x605 y10 gAddersHelp, Связь с разрабом
+		Gui, 1:Add, Button, x127 y10 gChangeName, Изменить свое имя
+		Gui, 1:Add, Button, x277 y10 gDonwloadAllAHKOffical, Восстановить АНК (удалить всё и скачать)
+		Gui, 1:Add, Button, x550 y10 gMenuOnMain, Меню
+		
+		;
     	this.Load_ini_hotkey()
     	LV_ModifyCol(1, 100)
     	LV_ModifyCol(2, 100)
@@ -39,6 +41,17 @@ class MainInterface
 		this.Load_ini_hotkey()
 
 		Return
+	}
+
+	GuiMainMenu(){
+		Gui, -AlwaysOnTop
+		
+		Gui, 10:Add, Button, gOpenFolderMain, Открыть папку АНК
+		Gui, 10:Add, Button, gOpenFolderScreens, Открыть папку со скринами малиновки
+
+		Gui, 10:Add, Button, gAddersHelp, Связь с разрабом
+
+		Gui, 10:Show, NA
 	}
 
 	Add_hotkey(){
@@ -138,14 +151,16 @@ class MainInterface
 	ChangeYourName(names, rang){
 		global NewName, NewRang
 		if (names == "ERROR")
-			names := "Никита Носов                      "
+			names := "Никита Носов"
 		if (rang == "ERROR")
-			rang := "Пажилой Генерал                "
+			rang := "Пажилой Генерал"
+		Gui, 3:font, bold s16, Arial
+		Gui, 3:Add, Text, Center cRed text, ВВЕДИТЕ ИМЯ ДЛЯ УДОСТОВЕРЕНИЯ`n`nЭТО ОБЯЗАТЕЛЬНО
 		Gui, 3:Add, Text, text, Полное имя:
-		Gui, 3:Add, Edit, text vNewName, % names
+		Gui, 3:Add, Edit, w400 text vNewName, % names
 		Gui, 3:Add, Text, text, Звание:
-		Gui, 3:Add, Edit, vNewRang, % rang
-		Gui, 3:Add, Button, gChangeNameDone, OK
+		Gui, 3:Add, Edit, w400 text vNewRang, % rang
+		Gui, 3:Add, Button, gChangeNameDone, Сохранить
 		Gui, 1:-AlwaysOnTop
 		Gui, 2:-AlwaysOnTop
 		Gui, 3:Show
@@ -281,7 +296,7 @@ if x=11
   Break
 }
 
-way = %A_ScriptDir%\BTR.ahk
+way = %A_ScriptDir%\%A_ScriptName%
 SetWorkingDir, %A_AppData%\Malinovka
 IniWrite, %way%, configBTR.ini, options, filewayBTR
 SetWorkingDir, %way%
@@ -290,11 +305,11 @@ IniRead, names, configBTR.ini, mandata, yourname
 if (names == "ERROR")
 	{
 	UrlDownloadToFile https://raw.githubusercontent.com/ViTokarev/malinovka/master/MainBinds.ahk, MainBinds.ahk
-	MsgBox, ОБЪЯЗАТЕЛЬНО ЗАДАЙ СВОЕ ИМЯ!
-	goto DonwloadAllAHKOffical
+	Gosub DonwloadAllAHKOffical
+	goto ChangeName
 	}
 ;CHECK UPDATE
-FileReadLine, version, %A_ScriptDir%\BTR.ahk, 1
+FileReadLine, version, %A_ScriptDir%\%A_ScriptName%, 1
 text := UrlDownloadToVar("https://raw.githubusercontent.com/ViTokarev/malinovka/master/BTR.ahk")
 UrlDownloadToVar(URL, UserAgent = "")
 {
@@ -317,7 +332,8 @@ UrlDownloadToVar(URL, UserAgent = "")
 		MsgBox, 4, Обновление, Есть новая версия программы! Вы хотите обновить?`n`n(займет пару сек)
 			IfMsgBox Yes
 				{
-				UrlDownloadToFile, https://raw.githubusercontent.com/ViTokarev/malinovka/master/BTR.ahk, %A_ScriptDir%\BTR.ahk
+				UrlDownloadToFile, https://raw.githubusercontent.com/ViTokarev/malinovka/master/BTR.ahk, %A_ScriptDir%\%A_ScriptName%
+				UrlDownloadToFile, https://raw.githubusercontent.com/ViTokarev/malinovka/master/MainBinds.ahk, %A_AppData%\Malinovka\MainBinds.ahk
 				Reload
 				}
 			Else
@@ -325,10 +341,18 @@ UrlDownloadToVar(URL, UserAgent = "")
 		}
 UpdateOk:
 
-MainInterface.Create_gui()
-return
+if (names = "ERROR")
+	Return
+Else
+	MainInterface.Create_gui()
 
-Ins::goto GuiClose
+Return
+
+Ins::
+if (GUI = Show)
+	goto GuiClose
+Else
+	MainInterface.Create_gui()
 Return
 
 !r::Reload
@@ -363,6 +387,14 @@ SaveCode:
 	MainInterface.Save_script_config(Hotkeyname, Newkey, code)
 Return
 
+3GuiClose:
+	Gui, -AlwaysOnTop
+	if (names not in "ERROR")
+		MsgBox, Данные не сохранились, нажмите "сохранить"
+	Else
+		MsgBox, Введите свое имя и звание, без него АНК не будет работать.
+Return
+
 2GuiClose:
 	MainInterface.Udpate_gui()
 Return
@@ -382,12 +414,20 @@ OpenFolderMain:
 Return
 
 DonwloadAllAHKOffical:
-Gui, 1:-AlwaysOnTop
-MsgBox, Обновление. Уверен? Если нет - жми АЛЬТ+R
-Gui, 4:font, s15, Arial
-Gui, 4:Add, Text,, Обновление. Процесс...
+Gui, 4:font, bold cRed s16, Arial
 Gui, 4:+Lastfound +ToolWindow +AlwaysOnTop -Caption -Border
-Gui, 4:Show
+if (names = "ERROR")
+	{
+	Gui, 4:Add, Text,, Подождите, идёт подготовка к первому запуску. Процесс...
+	Gui, 4:Show
+	}
+Else
+{
+	Gui, 1:-AlwaysOnTop
+	MsgBox, Обновление. Уверен? Если нет - жми АЛЬТ+R
+	Gui, 4:Add, Text,, Обновление. Процесс...
+	Gui, 4:Show
+}
 SetWorkingDir, %A_AppData%\Malinovka\
 FileRemoveDir, help_menu
 FileRemoveDir, profile
@@ -407,16 +447,24 @@ x++
 if x=41
   Break
 }
-Gui, 4:Hide
-MsgBox, 4, ОСТОРОЖНО, Вы хотите так же сбросить назначенные клавиши?`n`nПока мы только обновили содержимое биндов`, НО НЕ ВАШИ НАЗНАЧЕНЫЕ КНОПКИ.
-IfMsgBox Yes
-	{
-	Gui, 4:Show
+if (names = "ERROR")
+{
 	FileDelete, config.ini
 	UrlDownloadToFile https://raw.githubusercontent.com/ViTokarev/malinovka/master/profile/config.ini, config.ini
-	Gui, 4:Destroy
-	}
-MainInterface.Create_gui()
+}
+Else
+{
+	Gui, 4:Hide
+	MsgBox, 4, ОСТОРОЖНО, Вы хотите так же сбросить назначенные клавиши?`n`nПока мы только обновили содержимое биндов`, НО НЕ ВАШИ НАЗНАЧЕНЫЕ КНОПКИ.
+	IfMsgBox Yes
+		{
+		Gui, 4:Show
+		FileDelete, config.ini
+		UrlDownloadToFile https://raw.githubusercontent.com/ViTokarev/malinovka/master/profile/config.ini, config.ini
+		}
+	MainInterface.Create_gui()
+}
+Gui, 4:Destroy
 Return
 
 ChangeName:
@@ -435,12 +483,12 @@ SetWorkingDir, %A_AppData%\Malinovka
 IniWrite, %NewName%, configBTR.ini, mandata, yourname
 IniWrite, %NewRang%, configBTR.ini, mandata, yourrang
 MsgBox, Ваше имя: %NewName%`nВаше звание: %NewRang%
-Gui, 3:Destroy
+Reload
 Return
 
 AddersHelp:
 Gui, 1:-AlwaysOnTop
-MsgBox, ОФИЦАЛЬНЫЙ КПК ОГИБДД Малиновка 01`n`nСвежие версии - https://github.com/ViTokarev/malinovka `n`nВК - https://vk.com/wagneror `n`nDiscord - sed_oi#7351`n`nВсегда ваш - Полковник ОГИБДД Токарев В.П. (Август 2019)
+MsgBox, ОФИЦАЛЬНЫЙ КПК ОГИБДД Малиновка 01`n`nСвежие версии - https://github.com/ViTokarev/malinovka `n`nВК - https://vk.com/wagneror `n`nDiscord - sed_oi#7351`n`nВсегда ваш - Полковник ОГИБДД[01] Токарев В.П. (Август 2019)
 Return
 
 KeyOff:
@@ -448,4 +496,13 @@ KeyOff:
 	IniWrite, "", config.ini, %Hotkeyname%, key
 	MainInterface.Edit_script_config(Hotkeyname)
 	SetWorkingDir, %A_AppData%\Malinovka
+Return
+
+MenuOnMain:
+	MainInterface.GuiMainMenu()
+Return
+
+OpenFolderScreens:
+	Run, %A_MyDocuments%\Malinovka\screens
+	Gui, -AlwaysOnTop
 Return

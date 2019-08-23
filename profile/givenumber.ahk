@@ -11,7 +11,8 @@ givenumber: ; ВАЖНО Эту строку И ВЫШЕ не трогать
   SendInput, {F6}/me положил номера на стол, начал заполнять бланк учета.{Enter}
   Sleep 500
   SendInput, {F6}/do Заполняет...{Enter}
-  Sleep 3000
+  Sleep 1500
   SendInput, {F6}/me заполнил бланк и передал гос. номера новому владельцу.{Enter}
+  Sleep 500
   SendInput, {F6}/givenumber{Space}
 Return
