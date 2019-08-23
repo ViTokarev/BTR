@@ -1,4 +1,4 @@
-﻿; ###VERSION.0.4.7###
+﻿; ###VERSION.0.4.8###
 
 SetWorkingDir, %A_AppData%\Malinovka
 
@@ -19,7 +19,7 @@ class MainInterface
 		Gui, 1:Add, Button, x10 y10 gLableGetGotkey, Добавить
 		Gui, 1:Add, Button, x70 y10 gLableDeleteHotkey, Удалить
 		Gui, 1:Add, Button, x127 y10 gChangeName, Изменить свое имя
-		Gui, 1:Add, Button, x277 y10 gDonwloadAllAHKOffical, Восстановить АНК (удалить всё и скачать)
+		Gui, 1:Add, Button, x277 y10 gDonwloadAllAHKOffical, Обновить бинды
 		Gui, 1:Add, Button, x550 y10 gMenuOnMain, Меню
 		
 		;
@@ -52,6 +52,20 @@ class MainInterface
 		Gui, 10:Add, Button, gAddersHelp, Связь с разрабом
 
 		Gui, 10:Show, NA
+	}
+
+	Gui_Form_Update(){
+		global NewFlagUpgradeKey, NewFlagUpgrade
+		NewFlagUpgrade := 1
+		Gui, 4:Destroy
+		;Gui, 3:Add, 
+		Gui, 4:Font, bolt s14
+		Gui, 4:Add, Text,, Обновление содержимого биндов для работы.
+		Gui, 4:Add, Checkbox, vNewFlagUpgradeKey Check, Сбросить назначенные кноки?
+		Gui, 4:Add, Button, gDonwloadAllAHKfiles, Обновить бинды
+		Gui, 4:+AlwaysOnTop
+		Gui, 4:Show
+		Return NewFlagUpgrade
 	}
 
 	Add_hotkey(){
@@ -420,12 +434,22 @@ if (names = "ERROR")
 	{
 	Gui, 4:Add, Text,, Подождите, идёт подготовка к первому запуску. Процесс...
 	Gui, 4:Show
+	goto DonwloadAllAHKfiles
 	}
 Else
 {
-	Gui, 1:-AlwaysOnTop
-	MsgBox, Обновление. Уверен? Если нет - жми АЛЬТ+R
-	Gui, 4:Add, Text,, Обновление. Процесс...
+	MainInterface.Gui_Form_Update()
+}
+Return
+
+DonwloadAllAHKfiles:
+Gui, submit, nohide
+if (NewFlagUpgrade = 1)
+{
+	Gui, 4:Destroy
+	Gui, 4:font, bold cRed s16, Arial
+	Gui, 4:+Lastfound +ToolWindow +AlwaysOnTop -Caption -Border
+	Gui, 4:Add, Text,, Обновляем бинды. Процесс...
 	Gui, 4:Show
 }
 SetWorkingDir, %A_AppData%\Malinovka\
@@ -454,15 +478,13 @@ if (names = "ERROR")
 }
 Else
 {
-	Gui, 4:Hide
-	MsgBox, 4, ОСТОРОЖНО, Вы хотите так же сбросить назначенные клавиши?`n`nПока мы только обновили содержимое биндов`, НО НЕ ВАШИ НАЗНАЧЕНЫЕ КНОПКИ.
-	IfMsgBox Yes
+	if (NewFlagUpgradeKey = 1)
 		{
-		Gui, 4:Show
 		FileDelete, config.ini
 		UrlDownloadToFile https://raw.githubusercontent.com/ViTokarev/malinovka/master/profile/config.ini, config.ini
+		NewFlagUpgradeKey := 0
 		}
-	MainInterface.Create_gui()
+Reload
 }
 Gui, 4:Destroy
 Return
