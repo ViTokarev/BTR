@@ -365,7 +365,7 @@ if (names == "ERROR")
 
 ;CHECK UPDATE
 FileReadLine, version, %A_ScriptDir%\%A_ScriptName%, 1
-text := UrlDownloadToVar("https://raw.githubusercontent.com/ViTokarev/malinovka/master/BTR2.ahk")
+text := UrlDownloadToVar("https://raw.githubusercontent.com/ViTokarev/malinovka/master/BTR.ahk")
 UrlDownloadToVar(URL, UserAgent = "")
 {
    ComObjError(false)
@@ -388,7 +388,7 @@ UrlDownloadToVar(URL, UserAgent = "")
 		MsgBox, 4, Обновление, Есть новая версия программы! Вы хотите обновить?`n`n(займет пару сек)
 			IfMsgBox Yes
 				{
-				UrlDownloadToFile, https://raw.githubusercontent.com/ViTokarev/malinovka/master/BTR2.ahk, %A_ScriptDir%\%A_ScriptName%
+				UrlDownloadToFile, https://raw.githubusercontent.com/ViTokarev/malinovka/master/BTR.ahk, %A_ScriptDir%\%A_ScriptName%
 				UrlDownloadToFile, https://raw.githubusercontent.com/ViTokarev/malinovka/master/MainBindsFileConfig.ahk, %A_AppData%\Malinovka\MainBindsFileConfig.ahk
 				Reload
 				}
