@@ -1,50 +1,75 @@
-﻿; ###VERSION.0.4.9###
+﻿; ###VERSION:0.5.0###
 
 SetWorkingDir, %A_AppData%\Malinovka
 
 class MainInterface
 {
-	iniHead := [] ; заргрузка заголовков config.ini
-	list_hotkey := []
-	rownumber :=
+
+	; AHK бинд
+	Name := ;filename
+	Key :=
+	Description :=
+	TextBind :=
+	list_hotkey :=
+	ListDownlBinds :=
 	sumscript :=
-	firstlaunch :=
+	list_hotkey_fromrepo :=
+	;AHKscriptsDonw := [ogibdd, mvd, bcrb, vich]
 
-	Create_gui(){
-		Gui, 1:Default
-		Gui, 1:Add, ListView, r20 w650 y50 gGLV Grid AltSubmit, Название|Hotkeys|Описание функции
-		Gui, 1:Add, Text, text cRed, ВЫЗВАТЬ ЭТОТ МЕНЕДЖЕР КНОПКА: INSERT
-		Gui, 1:Add, Text, text, Alt+R - перезагрузит АНК. (даже во время игры)    Использовать бинды сможете после закрытия этого окна.
-		Gui, 1:Add, Text, text x500 y423, AHK by Vitalik_Tokarev
-		Gui, 1:Add, Button, x10 y10 gLableGetGotkey, Добавить
-		Gui, 1:Add, Button, x70 y10 gLableDeleteHotkey, Удалить
-		Gui, 1:Add, Button, x127 y10 gChangeName, Изменить свое имя
-		Gui, 1:Add, Button, x277 y10 gDonwloadAllAHKOffical, Обновить бинды
-		Gui, 1:Add, Button, x550 y10 gMenuOnMain, Меню
+	fileexitServer := ["https://raw.githubusercontent.com/ViTokarev/malinovka/master/"]
+	NameProfile := ["ОГИБДД", "МВД", "БЦРБ", "ВЧ"]
+	AHKscriptsDonw := [ogibdd, mvd, bcrb, vich]
+
+	Main_gui(){ ; основное окно
+		Gui, Destroy
+		global ChooseORGWrite
+		SetWorkingDir, %A_AppData%\Malinovka
+
+		;MsgBox, %chooseORG%
 		
-		;
-    	this.Load_ini_hotkey()
-    	LV_ModifyCol(1, 100)
-    	LV_ModifyCol(2, 100)
-    	LV_ModifyCol(3, 300)
-    	;LV_ModifyCol(4, 50)
-    	Gui, 1:+AlwaysOnTop
-		Gui, 1:Show, NA
-		Return
-		}
-	
-	Udpate_gui(){
-		Gui, 2:Destroy
-		Gui, 1:Default
-		Gui, 1:+AlwaysOnTop
-		LV_Delete()
-		this.Load_ini_hotkey()
+		;Gui, 1:Add, DropDownList, vChooseORGWrite gWriteChoise Altsubmit Choose%chooseORG%, ОГИБДД|МВД|БЦРБ|ВЧ ; то что выбранно, загружает, перекида на функцию
+		;Menu, ContextMain, Add, Создать свой бинд, AddCreateBind 
+		;Menu, ContextMain, Add, Изменить имя, ChangeName 
+		;Menu, ContextMain, Add, Менеджер загрузок, Download_menu
+		;Menu, ContextMain, Add, Удалить все мои бинды, DeleteAllMyBinds
+		;Menu, ContextMain, Add, Меню, MenuOnMain
 
+		Gui, 1:Add, ListView, r20 w650 y40 Grid AltSubmit gGLV, Name bind|Hotkeys|Описание бинда
+
+		Gui, 1:Add, Button, x15 y10 gAddCreateBind, Создать свой бинд
+
+		Gui, 1:Add, Button, x130 y10 gChangeName, Изменить свое имя
+
+		;Gui, 1:Add, Button, x250 y10 gLableDeleteHotkey, Удалить
+
+		Gui, 1:Add, Button, x250 y10 gDownload_menu, Менеджер загрузок
+
+		Gui, 1:Add, Button, x400 y10 gDeleteAllMyBinds, Удалить все мои бинды
+
+		Gui, 1:Add, Button, x600 y10 gMenuOnMain, Меню
+
+		Gui, 1:Add, Text, x15 y410, Нажми крестик на окне, чтобы бинды вкл. После, на кнопку "Delete" показывает все твои бинды.
+		Gui, 1:Add, Text, x530 y410, AHK by Vitalik_Tokarev
+
+		LV_ModifyCol(1, 100)
+		LV_ModifyCol(2, 100)
+		LV_ModifyCol(3, 400)
+
+
+		gosub Loadmybinds
+		;Menu, ContextMain, Show
+		;Gui, Menu, ContextMain
+		Gui, 1:Show,, BRT (beta v.0.5.0)
+		Return
+	}
+
+	Udpate_gui(){
+		LV_Delete()
+		gosub Loadmybinds
 		Return
 	}
 
 	GuiMainMenu(){
-		Gui, -AlwaysOnTop
 		Gui, 10:Font, bolt s14
 		Gui, 10:Add, Button, gOpenFolderMain, Папка АНК
 		Gui, 10:Add, Button, gOpenFolderScreens, СКРИНЫ
@@ -53,25 +78,100 @@ class MainInterface
 
 		Gui, 10:Show, NA
 	}
+	
+	ChangeYourName(names, rang){
+		global NewName, NewRang, ChoiseToDonwl, CheckDonwl
+		IniRead, names, configBTR.ini, mandata, yourname
+		IniRead, rang, configBTR.ini, mandata, yourrang
+		checking = Check
+		if (names == "ERROR")
+		{
+			names := "Никита Носов"
+			IniWrite, 1, configBTR.ini, mandata, ChoiseDonwl
+			checking = CheckedGray
+		}
+		if (rang == "ERROR")
+			rang := "Пажилой Генерал"
+		IniRead, ChoiseDonwl, configBTR.ini, mandata, ChoiseDonwl
+		Gui, 3:font, bold s16, Arial
+		Gui, 3:Add, Text, Center cRed text, ВВЕДИТЕ ИМЯ ДЛЯ УДОСТОВЕРЕНИЯ`n`nЭТО ОБЯЗАТЕЛЬНО
+		Gui, 3:Add, Text, text, Полное имя:
+		Gui, 3:Add, Edit, w400 text vNewName, % names
+		Gui, 3:Add, Text, text, Звание:
+		Gui, 3:Add, Edit, w400 text vNewRang, % rang
+		if (names == "ERROR" or names == "Никита Носов")
+		{
+				Gui, 3:Add, Checkbox, vCheckDonwl %checking%, Скачать бинды выбранной организации
+				Gui, 3:Add, DropDownList, vChoiseToDonwl AltSubmit Choose%ChoiseDonwl%, ОГИБДД|МВД|БЦРБ|ВЧ
+		}
+		Gui, 3:Add, Button, gChangeNameDone, Сохранить
+		Gui, 1:-AlwaysOnTop
+		Gui, 2:-AlwaysOnTop
+		Gui, 3:Show,, BTR - задать имя.
+		Return
+	}
 
-	Gui_Form_Update(){
-		global NewFlagUpgradeKey, NewFlagUpgrade
-		NewFlagUpgrade := 1
-		Gui, 4:Destroy
-		;Gui, 3:Add, 
-		Gui, 4:Font, bolt s14
-		Gui, 4:Add, Text,, Обновление содержимого биндов для работы.
-		Gui, 4:Add, Checkbox, vNewFlagUpgradeKey Check, Сбросить назначенные кноки?
-		Gui, 4:Add, Button, gDonwloadAllAHKfiles, Обновить бинды
-		Gui, 4:+AlwaysOnTop
-		Gui, 4:Show
-		Return NewFlagUpgrade
+	Download_menu_gui(chooseORG){ ; основное окно
+		Gui, Destroy
+		global ChooseORGWrite
+		global ChoiseCheckedDownl
+		SetWorkingDir, %A_AppData%\Malinovka
+		
+		Gui, 1:Add, DropDownList, vChooseORGWrite gDownload_menu_list Altsubmit Choose%chooseORG%, ОГИБДД|МВД|БЦРБ|ВЧ ; то что выбранно, загружает, перекида на функцию
+		
+		Gui, 1:Add, ListView, r20 w650 gClickDownlList vChoiseCheckedDownl Checked Grid AltSubmit, Название|Hotkeys|Описание функции
+
+		LV_ModifyCol(1, 100)
+		LV_ModifyCol(2, 100)
+		LV_ModifyCol(3, 300)
+
+		Gui, 1:Add, Button, x500 y410 gDonwloadChoise, Скачать выбранные
+		Gui, 1:Add, Button, x15 y410 gRCheckAlloff, Выбрать все
+		Gui, 1:Add, Button, x100 y410 gRCheckAll, Снять отмеченные
+		Gui, 1:Add, Button, x400 y410 gBackToMenu, Назад
+		GuiControl, 1:+AltSubmit, ChoiseCheckedDownl
+		Gui, 1:Show,, Менеджер загрузок
+		Return
+	}
+
+	Edit_script_config(Hotkeyname){
+		SetWorkingDir, %A_AppData%\Malinovka\profile\mybinds
+		Gui, 2:Destroy 
+		IniRead, descript, config.ini, %Hotkeyname%, description
+		Gui, 2:Font, s8
+		Gui, 2:Add, Text,, Описание бинда:
+		Gui, 2:Add, Edit, w650 text vdescripti, % descript
+		fileway := Hotkeyname . ".ahk"
+		FileRead, fileahk, % fileway
+		Gui, 2:Add, Text,, В КОНЦЕ КАЖДОГО СКРИПТА ДОЛЖЕН БЫТЬ: `Return` `n`nСам бинд:
+		Gui, 2:Add, Edit, w650 r25 text vcode, % fileahk
+		IniRead, key, config.ini, %Hotkeyname%, key
+		Gui, 2:Add, Text,, в поле ниже НАЖМИ кнопки на которые сработает бинд `n(ВКЛЮЧИТЕ АНГЛ РАСКЛАДКУ`!`!`!`!)
+		Gui, 2:Add, Hotkey, vNewkey, %key%
+		;Gui, 2:Add, Button, gKeyOff, Отключить кнопку
+		Gui, 2:Add, Button, gSaveCode, OK
+		Gui, 1:-AlwaysOnTop
+		Gui, 2:Show ;, y400 w400 h400, Редактор бинда
+		SetWorkingDir, %A_AppData%\Malinovka
+		Return
+	}
+
+	Save_script_config(Hotkeyname, Newkey, fileahk, descripti){
+		;MsgBox % Hotkeyname Newkey fileahk
+		SetWorkingDir, %A_AppData%\Malinovka\profile\mybinds
+		IniWrite, %Newkey%, config.ini, %Hotkeyname%, key
+		IniWrite, %descripti%, config.ini, %Hotkeyname%, description
+		fileway := Hotkeyname . ".ahk"
+		FileDelete, %fileway%
+		FileAppend, %fileahk%, %fileway%,UTF-8
+		Gui, 2:Destroy
+		MainInterface.Udpate_gui()
+		Return
 	}
 
 	Add_hotkey(){
-		LableGetGotkey:
 		Gui, 2:Destroy
-		Gui, 2:Add, Edit, vtemping , Название скрипта (на английском!)
+		Gui, 2:Add, Edit, vtemping , Название скрипта (!на английском!)
 		Gui, 2:Add, Edit, vcomment , Описание работы, пример: Заковать в наручники
 		Gui, 2:Add, Text, text, Ниже нажмите на поле и сочитание клавишь
 		Gui, 2:Add, Hotkey, vkey
@@ -82,113 +182,52 @@ class MainInterface
 		}
 
 	Add_hotkey_Saveini(key, temping, comment){
-		SetWorkingDir, %A_AppData%\Malinovka\profile
+		SetWorkingDir, %A_AppData%\Malinovka\profile\mybinds
 		IniWrite, %key%, config.ini, %temping%, key
 		fileway := temping . ".ahk"
 		IniWrite, %fileway%, config.ini, %temping%, fileway
+		IniWrite, %comment%, config.ini, %temping%, description
 		;hm := FileOpen(fileway, Flags , Encoding)
-		FileAppend, `; %comment%`n, %fileway%,UTF-8
-		FileAppend, Hotkey`, `%key%temping%`%`, %temping%`nreturn`n`n%temping%: `; ВАЖНО Эту строку И ВЫШЕ не трогать`n`;МЕСТО ДЛЯ СКРИПТА`n`nReturn, %fileway%
+		;FileAppend, `; %comment%`n, %fileway%,UTF-8
+		FileAppend, %temping%: `; ВАЖНО Эту строку И ВЫШЕ не трогать`n`n`MsgBox`, Пустой скрипт`n`nReturn, %fileway%,UTF-8
 		SetWorkingDir, %A_AppData%\Malinovka
-		Gui, Destroy
-		MainInterface.Udpate_gui()
-		Return
-	}
-
-	Add_ini_config(){
-		LabelAddIni:
-		Gui, 2:Destroy
-		Gui, 2:Add, Text,,  
-		Gui, 2:Add, Edit, text , Описание работы, пример: Заковать в наручники
-		Gui, 2:Add, Text, text, Ниже нажмите на поле и сочитание клавишь
-		Gui, 2:Add, Hotkey, vMyHotkey
-		Gui, 2:Add, Button, , OK
-		Gui, 1:-AlwaysOnTop
-		Gui, 2:Show
-		MainInterface.Udpate_gui()
-		Return
-	}
-
-	Delete_ini_hotkey_all(Hotkeyname){
-		SetWorkingDir, %A_AppData%\Malinovka\profile
-		IniDelete, config.ini, %Hotkeyname%
-		FileDelete, %Hotkeyname%.ahk
-		SetWorkingDir, %A_AppData%\Malinovka
-		Gui, 1:-AlwaysOnTop
-		MsgBox, %Hotkeyname% - удален
-		MainInterface.Udpate_gui()
-	Return
-	}
-	
-
-	Edit_script_config(Hotkeyname){
-		;MsgBox % Hotkeyname
-		SetWorkingDir, %A_AppData%\Malinovka\profile
-		Gui, 2:Destroy 
-		fileway := Hotkeyname . ".ahk"
-		FileRead, fileahk, % fileway
-		Gui, 2:Add, Text,, В КОНЦЕ КАЖДОГО СКРИПТА ДОЛЖЕН БЫТЬ: `Return
-		Gui, 2:Add, Edit, w700 r30 text vcode, % fileahk
-		IniRead, key, config.ini, %Hotkeyname%, key
-		Gui, 2:Add, Text,, В этом поле можно задать клавиши на которые сработает бинд (ВКЛЮЧИТЕ АНГЛ РАСКЛАДКУ`!`!`!`!)
-		Gui, 2:Add, Hotkey, vNewkey, %key%
-		Gui, 2:Add, Button, gKeyOff, Отключить кнопку
-		Gui, 2:Add, Button, gSaveCode, OK
-		Gui, 1:-AlwaysOnTop
-		Gui, 2:Show ;, y400 w400 h400, Редактор бинда
-		SetWorkingDir, %A_AppData%\Malinovka
-		Return
-	}
-
-	Save_script_config(Hotkeyname, Newkey, fileahk){
-		;MsgBox % Hotkeyname Newkey fileahk
-		SetWorkingDir, %A_AppData%\Malinovka\profile
-		IniWrite, %Newkey%, config.ini, %Hotkeyname%, key
-		fileway := Hotkeyname . ".ahk"
-		FileDelete, %fileway%
-		FileAppend, %fileahk%, %fileway%,UTF-8
-		SetWorkingDir, %A_AppData%\Malinovka
-		;FileAppend, `n#Include %A_AppData%\Malinovka\profile\%fileway%, %A_AppData%\Malinovka\MainBinds.ahk
-		Gui, 2:Destroy
-		MainInterface.Udpate_gui()
+		MsgBox, Добавлен новый бинд "%temping%" %fileway%
+		Reload
 		Return
 	}
 
 	Get_ini_config(temping, x){
+		SetWorkingDir, %A_AppData%\Malinovka\profile\mybinds
 		IniRead, key, config.ini, %temping%, key
 		IniRead, fileway, config.ini, %temping%, fileway
-		FileReadLine, description, %fileway%, 1
+		IniRead, description, config.ini, %temping%, description
+		;MsgBox % A_WorkingDir
+		;MsgBox % temping key fileway description
 		this.list_hotkey[x] := [temping, key, fileway, description]
 		Return
 	}
 
-	ChangeYourName(names, rang){
-		global NewName, NewRang
-		if (names == "ERROR")
-			names := "Никита Носов"
-		if (rang == "ERROR")
-			rang := "Пажилой Генерал"
-		Gui, 3:font, bold s16, Arial
-		Gui, 3:Add, Text, Center cRed text, ВВЕДИТЕ ИМЯ ДЛЯ УДОСТОВЕРЕНИЯ`n`nЭТО ОБЯЗАТЕЛЬНО
-		Gui, 3:Add, Text, text, Полное имя:
-		Gui, 3:Add, Edit, w400 text vNewName, % names
-		Gui, 3:Add, Text, text, Звание:
-		Gui, 3:Add, Edit, w400 text vNewRang, % rang
-		Gui, 3:Add, Button, gChangeNameDone, Сохранить
-		Gui, 1:-AlwaysOnTop
-		Gui, 2:-AlwaysOnTop
-		Gui, 3:Show
+	Get_ini_config_fromrepo(temping, x){
+		SetWorkingDir, %A_AppData%\Malinovka
+		IniRead, key, bufferfile.ini, %temping%, key
+		IniRead, fileway, bufferfile.ini, %temping%, fileway
+		IniRead, description, bufferfile.ini, %temping%, description
+		;MsgBox % temping fileway description
+		this.list_hotkey_fromrepo[x] := [temping, key, fileway, description]
 		Return
 	}
 
-	Load_ini_hotkey(){
-	SetWorkingDir, %A_AppData%\Malinovka\profile
-	x=0
-	this.list_hotkey := []
+	Load_binds_repo(WayProfile){
+		SetWorkingDir, %WayProfile%
+		;MsgBox % WayProfile
+		LV_Delete()
+		x=0
+		this.list_hotkey := []
 		Loop, read, config.ini
 		{
 			Loop, parse, A_LoopReadLine, %A_Tab%
 			{
+
 			temp1 := RegExMatch(A_LoopReadLine, ".*\[(.*)\]", "$1")
 
 			if (temp1 = 1)
@@ -196,25 +235,36 @@ class MainInterface
 				x++
 				this.iniHead[x] := A_LoopReadLine
 				temping := RegExReplace(A_LoopReadLine, ".*\[(.*)\]", "$1") ; получение заголовков ini
-				this.Get_ini_config(temping, x) ; загрузка всех данных о анк
+				this.Get_ini_config(temping, x, WayProfile) ; загрузка всех данных о анк
 				;MsgBox % temping keycolum description
 				LV_Add("", this.list_hotkey[x][1], this.list_hotkey[x][2], this.list_hotkey[x][4])
+				;MsgBox % A_LoopReadLine
 			}
 			}
+		this.list_hotkey :=
 		}
-	this.sumscript := x
-	SetWorkingDir, %A_AppData%\Malinovka
+
+	sumscript := x
 	Return
 	}
 
+	Delete_ini_hotkey_all(Hotkeyname){
+		SetWorkingDir, %A_AppData%\Malinovka\profile\mybinds
+		IniDelete, config.ini, %Hotkeyname%
+		FileDelete, %Hotkeyname%.ahk
+		SetWorkingDir, %A_AppData%\Malinovka
+		MainInterface.Main_gui()
+	Return
+}
+
 	Reconfig_ahk_to_Main(){
-	SetWorkingDir, %A_AppData%\Malinovka\profile
+	SetWorkingDir, %A_AppData%\Malinovka\profile\mybinds
 	FileDelete, help_gui.txt
 	SetWorkingDir, %A_AppData%\Malinovka
 		key := "; END OF UPDATE CODE" ; СДЕЛАТЬ КЛЮЧ В ВЭБЕ, ВТОРОЙ СТРОКОЙ?
 		keyIndex = 0
 		CustomCodeText :=
-		Loop, read, MainBinds.ahk, `r, `n
+		Loop, read, MainBindsFileConfig.ahk, `r, `n
 		{
 				if (A_Index = 1)
 					CustomCodeText = %A_LoopReadLine%
@@ -229,22 +279,25 @@ class MainInterface
 			        }
 		    	}
 		}
-		FileDelete, MainBinds.ahk
-		FileAppend, %CustomCodeText%, MainBinds.ahk
-		y := this.sumscript
+
+		FileDelete, MainBindsFileConfig.ahk
+		FileAppend, %CustomCodeText%, MainBindsFileConfig.ahk
+		;MsgBox % this.list_hotkey.1.1
+		y := MainInterface.sumscript
 		x := 0
 		b := ""
 		key := ""
-		FileAppend, AHK by Vitalik_Tokarev`n, %A_AppData%\Malinovka\profile\help_gui.txt
-		FileAppend, ! - это АЛЬТ   ||   ^ - это CTRL`n, %A_AppData%\Malinovka\profile\help_gui.txt
+		FileAppend, AHK by Vitalik_Tokarev`n, %A_AppData%\Malinovka\profile\mybinds\help_gui.txt
+		FileAppend, `nЭТО ВСЕ ВАШИ АКТИВНЫЕ БИНДЫ`n, %A_AppData%\Malinovka\profile\mybinds\help_gui.txt
 		Loop
 		{
 			x++
+			;MsgBox % nameahk
 			description := this.list_hotkey[x][4]
 			nameahk := this.list_hotkey[x][3]
 			key     := this.list_hotkey[x][2]
 			temping := this.list_hotkey[x][1]
-			
+			;MsgBox % key
 			if (key = b)
 			{
 				goto labelYes
@@ -252,10 +305,14 @@ class MainInterface
 			else
 			{
 				inikeytotext = %inikeytotext%`nIniRead`, key%temping%`, config.ini`, %temping%`, key
-				forguikey = %forguikey%`n%key% %description%
 				hotkeymany = %hotkeymany%`nHotkey, `%key%temping%`%, %temping%
-				addresahk = %A_AppData%\Malinovka\profile\%nameahk%
+				addresahk = %A_AppData%\Malinovka\profile\mybinds\%nameahk%
 				includetotext = %includetotext%`n#Include %addresahk%
+				keyforhelp := key
+				keyforhelp :=RegExReplace(keyforhelp,"\!","ALT + ")
+				keyforhelp :=RegExReplace(keyforhelp,"\^","CTRL + ")
+				forguikey = %forguikey%`n%keyforhelp%  %description%
+				;MsgBox, %inikeytotext%
 			}
 			labelYes:
 			;inikeytotext = %inikeytotext%`nIniRead`, key%temping%`, config.ini`, %temping%`, key
@@ -264,21 +321,524 @@ class MainInterface
 			
 
 			;MsgBox, % includetotext
-			if (x == this.sumscript)
+			if (x == MainInterface.sumscript)
 			{
-				FileAppend, %inikeytotext%, %A_AppData%\Malinovka\MainBinds.ahk
-				FileAppend, %hotkeymany%, %A_AppData%\Malinovka\MainBinds.ahk
-				FileAppend, `n`Return, %A_AppData%\Malinovka\MainBinds.ahk
-				FileAppend, %includetotext%, %A_AppData%\Malinovka\MainBinds.ahk
-				FileAppend, %forguikey%, %A_AppData%\Malinovka\profile\help_gui.txt
+				FileAppend, %inikeytotext%, %A_AppData%\Malinovka\MainBindsFileConfig.ahk
+				FileAppend, %hotkeymany%, %A_AppData%\Malinovka\MainBindsFileConfig.ahk
+				FileAppend, `n`Return, %A_AppData%\Malinovka\MainBindsFileConfig.ahk
+				FileAppend, %includetotext%, %A_AppData%\Malinovka\MainBindsFileConfig.ahk
+				FileAppend, %forguikey%, %A_AppData%\Malinovka\profile\mybinds\help_gui.txt
 				Break
 			}
 		}
+	Return
 	}
+}
+SetWorkingDir, %A_AppData%
 
+IfNotExist, %A_AppData%\Malinovka\MainBindsFileConfig.ahk
+{
+	FileRemoveDir, Malinovka, 1
+	FileCreateDir, Malinovka
+	gosub UpdateHelpListZakon
 }
 
-; MAIN FUNCTION
+SetWorkingDir, %A_AppData%\Malinovka
+
+way = %A_ScriptDir%\%A_ScriptName%
+SetWorkingDir, %A_AppData%\Malinovka
+IniWrite, %way%, configBTR.ini, options, filewayBTR
+SetWorkingDir, %way%
+
+IniRead, chooseORG, configBTR.ini, options, ChoiseProfile
+if (chooseORG = "ERROR")
+	{
+		IniWrite, 1, configBTR.ini, options, ChoiseProfile
+	}
+
+IniRead, names, configBTR.ini, mandata, yourname
+if (names == "ERROR")
+	{
+	UrlDownloadToFile https://raw.githubusercontent.com/ViTokarev/malinovka/master/MainBindsFileConfig.ahk, MainBindsFileConfig.ahk
+	goto ChangeName
+	}
+
+;CHECK UPDATE
+FileReadLine, version, %A_ScriptDir%\%A_ScriptName%, 1
+text := UrlDownloadToVar("https://raw.githubusercontent.com/ViTokarev/malinovka/master/BTR2.ahk")
+UrlDownloadToVar(URL, UserAgent = "")
+{
+   ComObjError(false)
+   WebRequest := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+   WebRequest.Open("GET", Url)
+   UserAgent ? WebRequest.Option(WinHttpRequestOption_UserAgentString := 0) := UserAgent
+   WebRequest.Send()
+   if (WebRequest.ResponseText = "")
+      msgbox Сервер обновлений не отвечает. Повторите позже.
+   Text := WebRequest.ResponseText
+   WebRequest := ""
+   ;MsgBox, %Text%
+   return Text
+}
+	If InStr(Text, version)
+		goto UpdateOk
+	Else
+		{
+		Gui, -AlwaysOnTop
+		MsgBox, 4, Обновление, Есть новая версия программы! Вы хотите обновить?`n`n(займет пару сек)
+			IfMsgBox Yes
+				{
+				UrlDownloadToFile, https://raw.githubusercontent.com/ViTokarev/malinovka/master/BTR2.ahk, %A_ScriptDir%\%A_ScriptName%
+				UrlDownloadToFile, https://raw.githubusercontent.com/ViTokarev/malinovka/master/MainBindsFileConfig.ahk, %A_AppData%\Malinovka\MainBindsFileConfig.ahk
+				Reload
+				}
+			Else
+				MsgBox, Ок, конечно, но могли добавить новые фичи для стабильности.
+		}
+UpdateOk:
+
+if (names = "ERROR")
+	Return
+Else
+	MainInterface.Main_gui()
+Return
+
+!r::Reload
+
+/*
+WriteChoise:
+Gui, Submit, NoHide
+IniWrite, %ChooseORGWrite%, configBTR.ini, options, ChoiseProfile
+NameProfile := ["ОГИБДД", "МВД", "БЦРБ", "ВЧ"]
+
+		WayProfileOGIBDD = %A_AppData%\Malinovka\profile\ogibdd
+		WayProfileMVD = %A_AppData%\Malinovka\profile\mvd
+		WayProfileBCRB = %A_AppData%\Malinovka\profile\bcrb
+		WayProfileVICH = %A_AppData%\Malinovka\profile\vich
+		WayProfileVICH = %A_AppData%\Malinovka\profile\adoons
+
+		WayProfile := [WayProfileOGIBDD, WayProfileMVD, WayProfileBCRB, WayProfileVICH]
+		WayProfile := WayProfile[ChooseORGWrite]
+		IfNotExist, %WayProfile%
+		{
+			MsgBox, неудалось загрузить бинды. (Нет папки)
+			LV_Delete()
+		}
+		Else
+			MainInterface.Load_binds_repo(WayProfile)
+IniRead, chooseORG, configBTR.ini, options, ChoiseProfile
+Return
+*/
+
+CreateBindGUI:
+MainInterface.Gui_CreateBind()
+Return
+
+AddersHelp:
+Gui, 1:-AlwaysOnTop
+MsgBox, ОФИЦАЛЬНЫЙ КПК ОГИБДД Малиновка 01`n`nСвежие версии - https://github.com/ViTokarev/malinovka `n`nВК - https://vk.com/wagneror `n`nDiscord - sed_oi#7351`n`nВсегда ваш - Полковник ОГИБДД[01] Токарев В.П. (Август 2019)
+Return
+
+SaveNewBind:
+MainInterface.SetNewBind(name, key, description, TextBind)
+Return
+
+Download_menu:
+	SetWorkingDir, %A_AppData%\Malinovka
+	IniRead, chooseORG, configBTR.ini, options, ChoiseProfile
+	MainInterface.Download_menu_gui(chooseORG)
+	goto Download_menu_list
+Return
+
+
+
+Download_menu_list:
+	SetWorkingDir, %A_AppData%\Malinovka
+	this.LV_Delete()
+	Gui, Submit, NoHide
+	IniWrite, %ChooseORGWrite%, configBTR.ini, options, ChoiseProfile
+	IniRead, chooseORG, configBTR.ini, options, ChoiseProfile
+	LV_Delete()
+	FileDelete, bufferfile.ini
+	AHKscriptsDonw := ["ogibdd", "mvd", "bcrb", "vich"]
+	nameforDownload := AHKscriptsDonw[chooseORG]
+	urltodownload := "https://raw.githubusercontent.com/ViTokarev/malinovka/master/profile/" . nameforDownload . "/config.ini"
+	;MsgBox, %urltodownload%
+
+		;MsgBox % urltodownload
+		text := wUrlDownloadToVar(urltodownload)
+		wUrlDownloadToVar(URL, UserAgent = "")
+		{
+			ComObjError(false)
+			WebRequest := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+			WebRequest.Open("GET", Url)
+			UserAgent ? WebRequest.Option(WinHttpRequestOption_UserAgentString := 0) := UserAgent
+			WebRequest.Send()
+			;if (WebRequest.ResponseText = "")
+			;	msgbox Сервер с биндами не отвечает. Повторите позже.
+			Text := WebRequest.ResponseText
+			WebRequest := ""
+			FileAppend, %Text%, bufferfile.ini
+			return
+		}
+
+x=0
+MainInterface.list_hotkey_fromrepo := []
+iniHead := []
+		Loop, read, bufferfile.ini
+		{
+			Loop, parse, A_LoopReadLine, %A_Tab%
+			{
+			temp1 := RegExMatch(A_LoopReadLine, ".*\[(.*)\]", "$1")
+
+			if (temp1 = 1)
+			{
+				x++
+				temping := RegExReplace(A_LoopReadLine, ".*\[(.*)\]", "$1") ; получение заголовков ini
+				iniHead[x] := temping
+				
+				MainInterface.Get_ini_config_fromrepo(temping, x) ; загрузка всех данных о анк
+				;MsgBox % temping
+				;MsgBox % temping keycolum description
+				LV_Add("", MainInterface.list_hotkey_fromrepo[x][1], MainInterface.list_hotkey_fromrepo[x][2], MainInterface.list_hotkey_fromrepo[x][4])
+			}
+			}
+		}
+Return
+
+Loadmybinds:
+SetWorkingDir, %A_AppData%\Malinovka\profile\mybinds
+x=1
+MainInterface.list_hotkey := []
+iniHead := []
+		Loop, read, config.ini
+		{
+			Loop, parse, A_LoopReadLine, %A_Tab%
+			{
+			temp1 := RegExMatch(A_LoopReadLine, ".*\[(.*)\]", "$1")
+
+			if (temp1 = 1)
+			{
+				temping := RegExReplace(A_LoopReadLine, ".*\[(.*)\]", "$1") ; получение заголовков ini
+				iniHead[x] := temping
+				MainInterface.Get_ini_config(temping, x) ; загрузка всех данных о анк
+				;MsgBox % temping
+				;MsgBox % temping keycolum description
+				LV_Add("", MainInterface.list_hotkey[x][1], MainInterface.list_hotkey[x][2], MainInterface.list_hotkey[x][4])
+				x++
+			}
+			}
+		}
+x--
+MainInterface.sumscript := x
+Return
+
+BackToMenu:
+	MainInterface.Main_gui()
+Return
+
+DonwloadChoise:
+	Gui, 4:font, bold cDark s16, Arial
+	Gui, 4:+Lastfound +ToolWindow +AlwaysOnTop -Caption -Border
+	Gui, 4:Add, Text, center vMyTextDonwload, Подготовка к загрузке биндов.
+	Gui, 4:Show, Center
+	SetWorkingDir, %A_AppData%\Malinovka
+	IniRead, chooseORG, configBTR.ini, options, ChoiseProfile
+	SetWorkingDir, %A_AppData%\Malinovka\profile\mybinds
+	AHKscriptsDonw := ["ogibdd", "mvd", "bcrb", "vich"]
+	nameforDownload := AHKscriptsDonw[chooseORG]
+	CheckedRows :=
+	NameAllRows :=
+	Sleep, 250
+	GuiControl, 4:,MyTextDonwload, Скачиваем новые файлы.
+	Loop
+	{
+	    RowNumber := LV_GetNext(RowNumber, "C")  ; Resume the search at the row after that found by the previous iteration.
+	    if not RowNumber  ; The above returned zero, so there are no more selected rows.
+	        break
+	    ;CheckedRows .= CheckedRows ? "," RowNumber : RowNumber 
+	    LV_GetText(NameBindDownl, RowNumber, 1)
+	    LV_GetText(NameBindKey, RowNumber, 2)
+	    LV_GetText(NameBindDescript, RowNumber, 3)
+	    NameAllRows .= NameAllRows ? "," NameBindDownl : NameBindDownl
+	    NameBindDownlFor := NameBindDownl . ".ahk"
+		urltodownload := "https://raw.githubusercontent.com/ViTokarev/malinovka/master/profile/" . nameforDownload . "/" . NameBindDownlFor
+		SetWorkingDir, %A_AppData%\Malinovka\profile\mybinds
+		UrlDownloadToFile % urltodownload, % NameBindDownlFor
+		;MsgBox % NameBindDownlFor
+		FileReadLine, errortestdownl, %NameBindDownlFor%, 1
+		if (errortestdownl == "404: Not Found")
+		{
+			FileDelete, %NameBindDownlFor%
+			MsgBox, Ошибка файл бинда `"%NameBindDownl%`" не скачался. (404 путь не найден)
+		}
+		Else
+		{
+		IniRead, testkey, config.ini, %NameBindDownl%, key
+		if (testkey == "ERROR")
+			IniWrite, %NameBindKey%, config.ini, %NameBindDownl%, key
+		IniWrite, %NameBindDownlFor%, config.ini, %NameBindDownl%, fileway
+		IniWrite, %NameBindDescript%, config.ini, %NameBindDownl%, description
+		GuiControl, 4:,MyTextDonwload, %NameBindDownl% - скачан.
+		}
+	}
+	;msgbox % " Rows " CheckedRows " are Checked"
+	;msgbox % NameAllRows
+	GuiControl, 4:,MyTextDonwload, Загрузка завершена.
+	Sleep, 500
+	Gui, 4:Destroy
+Return
+
+ClickDownlList:
+/*
+if A_GuiEvent = DoubleClick
+{
+    LV_GetText(RowText, A_EventInfo)  ; Get the text from the row's first field.
+    ToolTip You double-clicked row number %A_EventInfo%. Text: "%RowText%"
+}
+if (A_GuiEvent = "I" and errorlevel = "c")
+{
+		RowNumber: = LV_GetNext()
+		;msgbox % A_EventInfo
+		msgbox % RowNumber
+}
+*/
+/*
+If (A_GuiEvent == "I") {
+        If (ErrorLevel == "C")
+        {
+			ToolTip, % "Row " . A_EventInfo . " is checked."
+			LV_GetText(Hotkeyname, A_EventInfo, 1)
+			MsgBox % Hotkeyname
+        }
+        Else If (ErrorLevel == "c")
+            ToolTip, % "Row " . A_EventInfo . " is unchecked."
+}
+*/
+/*
+if (A_GuiEvent = "I")
+{
+    if InStr(ErrorLevel, "c", true)
+    {
+        LV_GetText(Title, A_EventInfo, 1)
+        msgbox % "Remove:`nTitle = " . Title "`nArtist = " . Artist
+    }
+    if InStr(ErrorLevel, "C", true)
+    {
+        LV_GetText(Title, A_EventInfo, 1)
+        LV_GetText(Artist, A_EventInfo, 2)
+        msgbox % "Insert:`nTitle = " . Title "`nArtist = " . Artist
+    }
+}
+*/
+Return
+
+RCheckAll:
+	LV_Modify(0, "-Check")
+Return
+
+RCheckAlloff:
+	LV_Modify(0, "+Check")
+Return
+
+LableEditHotkey:
+	RowNumber :=
+	Hotkeyname :=
+	RowNumber := LV_GetNext(RowNumber)
+	LV_GetText(Hotkeyname, RowNumber, 1)
+	MainInterface.Edit_script_config(Hotkeyname)
+Return
+
+SaveCode:
+	Gui, 2:Submit
+	MainInterface.Save_script_config(Hotkeyname, Newkey, code, descripti)
+Return
+
+LableDeleteHotkey:
+	RowNumber :=
+	Hotkeyname :=
+	RowNumber := LV_GetNext(RowNumber)
+	LV_GetText(Hotkeyname, RowNumber, 1)
+	MainInterface.Delete_ini_hotkey_all(Hotkeyname)
+Return
+
+GuiClose:
+	MainInterface.Reconfig_ahk_to_Main()
+	Run "%A_AppData%\Malinovka\MainBindsFileConfig.ahk"
+ExitApp
+
+GuiContextMenu:
+	Menu, MyMenuBar, Add, Редактировать, LableEditHotkey
+	Menu, MyMenuBar, Add, Удалить, LableDeleteHotkey
+	Menu, MyMenuBar, Show, %A_GuiX%, %A_GuiY%
+Return
+
+GLV:
+if A_GuiEvent = DoubleClick
+{
+	RowNumber :=
+	Hotkeyname :=
+	RowNumber := LV_GetNext(RowNumber)
+	LV_GetText(Hotkeyname, RowNumber, 1)
+	MainInterface.Edit_script_config(Hotkeyname)
+}
+Return
+
+SaveNewKey:
+	GUI, Submit, NoHide
+	MainInterface.Add_hotkey_Saveini(key, temping, comment)
+Return
+
+AddCreateBind:
+	MainInterface.Add_hotkey()
+Return
+
+GUIallUpdateList:
+	MainInterface.Main_gui()
+Return
+
+ChangeName:
+Gui, 1:-AlwaysOnTop
+SetWorkingDir, %A_AppData%\Malinovka
+IniRead, names, configBTR.ini, mandata, yourname
+IniRead, rang, configBTR.ini, mandata, yourrang
+
+MainInterface.ChangeYourName(names, rang)
+Return
+
+ChangeNameDone:
+GUI, Submit, NoHide
+if (NewName == "Никита Носов")
+		{
+			MsgBox, Введите СВОЕ имя.
+			Return
+
+		}
+SetWorkingDir, %A_AppData%\Malinovka
+
+if (CheckDonwl == 1)
+	{
+	Gui, 1:Destroy
+	FileDelete, bufferfile.ini
+	Gui, 3:Destroy
+	Gui, 4:font, bold cRed s16, Arial
+	Gui, 4:+Lastfound +ToolWindow +AlwaysOnTop -Caption +Border
+	Gui, 4:Add, Text, center vTextFirstDonwload, Начинаем скачивать ваши бинды 
+	Gui, 4:Color, e9e9e9
+	Gui, 4:Show
+	AHKscriptsDonw := ["ogibdd", "mvd", "bcrb", "vich"]
+	nameforDownload := AHKscriptsDonw[ChoiseToDonwl]
+	urltodownload := "https://raw.githubusercontent.com/ViTokarev/malinovka/master/profile/" . nameforDownload . "/config.ini"
+	whr := ComObjCreate("WinHttp.WinHttpRequest.5.1") 
+	whr.Open("GET", urltodownload, true) 
+	whr.Send() 
+	whr.WaitForResponse() 
+	listbinsfirst := whr.ResponseText ; получили список биндов
+	GuiControl, 4:,TextFirstDonwload, Получаем список нужных биндов
+	FileAppend, %listbinsfirst%, bufferfile.ini
+
+x=0
+MainInterface.list_hotkey_fromrepo := []
+iniHead := []
+		Loop, read, bufferfile.ini
+		{
+			Loop, parse, A_LoopReadLine, %A_Tab%
+			{
+			temp1 := RegExMatch(A_LoopReadLine, ".*\[(.*)\]", "$1")
+
+			if (temp1 = 1)
+			{
+				x++
+				temping := RegExReplace(A_LoopReadLine, ".*\[(.*)\]", "$1") ; получение заголовков ini
+				iniHead[x] := temping
+				;MsgBox, %temping%
+				MainInterface.Get_ini_config_fromrepo(temping, x) ; загрузка всех данных о анк
+			}
+			}	
+		}
+sumscript := x
+GuiControl, 4:,TextFirstDonwload, Начинаю загрузку биндов
+IfNotExist %A_AppData%\Malinovka\profile\mybinds\
+	FileCreateDir, %A_AppData%\Malinovka\profile\mybinds
+SetWorkingDir, %A_AppData%\Malinovka\profile\mybinds\
+x=0
+Loop
+	{
+		x++
+	    NameBindDownl := MainInterface.list_hotkey_fromrepo[x][1]
+	    NameBindKey := MainInterface.list_hotkey_fromrepo[x][2]
+	    NameBindDescript := MainInterface.list_hotkey_fromrepo[x][4]
+	    NameAllRows .= NameAllRows ? "," NameBindDownl : NameBindDownl
+	    NameBindDownlFor := NameBindDownl . ".ahk"
+		urltodownload := "https://raw.githubusercontent.com/ViTokarev/malinovka/master/profile/" . nameforDownload . "/" . NameBindDownlFor
+		;MsgBox, %urltodownload%
+
+		UrlDownloadToFile % urltodownload, %NameBindDownlFor%
+		;MsgBox, имя папки: %nameforDownload% имя бинда: %NameBindDownlFor%
+
+		FileReadLine, errortestdownl, %NameBindDownlFor%, 1
+		if (errortestdownl == "404: Not Found")
+		{
+			FileDelete, %NameBindDownlFor%
+			Gui, 4:Hide
+			MsgBox, Ошибка файл бинда `"%NameBindDownl%`" не скачался. (404 путь не найден)
+		}
+		Else
+		{
+		IniRead, testkey, config.ini, %NameBindDownl%, key
+		if (testkey == "ERROR")
+		IniWrite, %NameBindKey%, config.ini, %NameBindDownl%, key
+		IniWrite, %NameBindDownlFor%, config.ini, %NameBindDownl%, fileway
+		IniWrite, %NameBindDescript%, config.ini, %NameBindDownl%, description
+		GuiControl, 4:,TextFirstDonwload, Бинд `"%NameBindDownl%`" скачан.
+		if (x == sumscript)
+			Break
+		}
+	}
+GuiControl, 4:,TextFirstDonwload, Файл конфигурации создан.
+Sleep, 750
+GuiControl, 4:,TextFirstDonwload, Добро пожаловать.
+Sleep, 1500
+}
+SetWorkingDir, %A_AppData%\Malinovka
+IniWrite, %NewName%, configBTR.ini, mandata, yourname
+IniWrite, %NewRang%, configBTR.ini, mandata, yourrang
+IniWrite, %ChoiseToDonwl%, configBTR.ini, mandata, ChoiseDonwl
+;MsgBox, Ваше имя: %NewName%`nВаше звание: %NewRang%
+Reload
+Return
+
+DeleteAllMyBinds:
+MsgBox, 4,, Точно удалить ВСЕ ваши бинды?
+	IfMsgBox, No
+		Return
+SetWorkingDir, %A_AppData%\Malinovka\profile
+FileRemoveDir, mybinds, 1
+FileCreateDir, mybinds
+LV_Delete()
+MainInterface.Udpate_gui()
+Return
+
+OpenFolderMain:
+	Run, %A_AppData%\Malinovka
+	Gui, -AlwaysOnTop
+Return
+
+OpenFolderScreens:
+	Run, %A_MyDocuments%\Malinovka\screens
+	Gui, -AlwaysOnTop
+Return
+
+OpenChatlog:
+	Run, %A_MyDocuments%\Malinovka\chatlog.txt
+	Gui, -AlwaysOnTop
+Return
+
+MenuOnMain:
+	MainInterface.GuiMainMenu()
+Return
+
+UpdateHelpListZakon:
 if !FileExist("%APPDATA%\Malinovka\help_menu")
 	FileCreateDir, %APPDATA%\Malinovka\help_menu
 Phelp_help = %APPDATA%\Malinovka\help_menu\help_help.txt
@@ -307,98 +867,8 @@ loop
   }
 x++
 if x=11
-  Break
+  Return
 }
-
-way = %A_ScriptDir%\%A_ScriptName%
-SetWorkingDir, %A_AppData%\Malinovka
-IniWrite, %way%, configBTR.ini, options, filewayBTR
-SetWorkingDir, %way%
-
-IniRead, names, configBTR.ini, mandata, yourname
-if (names == "ERROR")
-	{
-	UrlDownloadToFile https://raw.githubusercontent.com/ViTokarev/malinovka/master/MainBinds.ahk, MainBinds.ahk
-	Gosub DonwloadAllAHKOffical
-	goto ChangeName
-	}
-;CHECK UPDATE
-FileReadLine, version, %A_ScriptDir%\%A_ScriptName%, 1
-text := UrlDownloadToVar("https://raw.githubusercontent.com/ViTokarev/malinovka/master/BTR.ahk")
-UrlDownloadToVar(URL, UserAgent = "")
-{
-   ComObjError(false)
-   WebRequest := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-   WebRequest.Open("GET", Url)
-   UserAgent ? WebRequest.Option(WinHttpRequestOption_UserAgentString := 0) := UserAgent
-   WebRequest.Send()
-   if (WebRequest.ResponseText = "")
-      msgbox Сервер обновлений не отвечает. Повторите позже.
-   Text := WebRequest.ResponseText
-   WebRequest := ""
-   return Text
-}
-	If InStr(Text, version)
-		goto UpdateOk
-	Else
-		{
-		Gui, -AlwaysOnTop
-		MsgBox, 4, Обновление, Есть новая версия программы! Вы хотите обновить?`n`n(займет пару сек)
-			IfMsgBox Yes
-				{
-				UrlDownloadToFile, https://raw.githubusercontent.com/ViTokarev/malinovka/master/BTR.ahk, %A_ScriptDir%\%A_ScriptName%
-				UrlDownloadToFile, https://raw.githubusercontent.com/ViTokarev/malinovka/master/MainBinds.ahk, %A_AppData%\Malinovka\MainBinds.ahk
-				Reload
-				}
-			Else
-				MsgBox, Ок, конечно, но могли добавить новые фичи для стабильности.
-		}
-UpdateOk:
-
-if (names = "ERROR")
-	Return
-Else
-	MainInterface.Create_gui()
-
-Return
-
-Ins::
-if (GUI = Show)
-	goto GuiClose
-Else
-	MainInterface.Create_gui()
-Return
-
-!r::Reload
-Return
-
-SaveNewKey:
-GUI, Submit, NoHide
-MainInterface.Add_hotkey_Saveini(key, temping, comment)
-Return
-
-LableDeleteHotkey:
-	RowNumber :=
-	Hotkeyname :=
-	RowNumber := LV_GetNext(RowNumber)
-	LV_GetText(Hotkeyname, RowNumber, 1)
-	MainInterface.Delete_ini_hotkey_all(Hotkeyname)
-Return
-
-GLV:
-if A_GuiEvent = DoubleClick
-{
-	RowNumber :=
-	Hotkeyname :=
-	RowNumber := LV_GetNext(RowNumber)
-	LV_GetText(Hotkeyname, RowNumber, 1)
-	MainInterface.Edit_script_config(Hotkeyname)
-}
-Return
-
-SaveCode:
-	Gui, 2:Submit
-	MainInterface.Save_script_config(Hotkeyname, Newkey, code)
 Return
 
 3GuiClose:
@@ -407,129 +877,4 @@ Return
 		MsgBox, Данные не сохранились, нажмите "сохранить"
 	Else
 		MsgBox, Введите свое имя и звание, без него АНК не будет работать.
-Return
-
-2GuiClose:
-	MainInterface.Udpate_gui()
-Return
-
-GuiClose:
-	MainInterface.Reconfig_ahk_to_Main()
-	Run "%A_AppData%\Malinovka\MainBinds.ahk"
-ExitApp
-
-ReconfigAHK:
-	MainInterface.Reconfig_ahk_to_Main()
-Return
-
-OpenFolderMain:
-	Run, %A_AppData%\Malinovka
-	Gui, -AlwaysOnTop
-Return
-
-DonwloadAllAHKOffical:
-Gui, 4:font, bold cRed s16, Arial
-Gui, 4:+Lastfound +ToolWindow +AlwaysOnTop -Caption -Border
-if (names = "ERROR")
-	{
-	Gui, 4:Add, Text,, Подождите, идёт подготовка к первому запуску. Процесс...
-	Gui, 4:Show
-	goto DonwloadAllAHKfiles
-	}
-Else
-{
-	MainInterface.Gui_Form_Update()
-}
-Return
-
-DonwloadAllAHKfiles:
-Gui, submit, nohide
-if (NewFlagUpgrade = 1)
-{
-	Gui, 4:Destroy
-	Gui, 4:font, bold cRed s16, Arial
-	Gui, 4:+Lastfound +ToolWindow +AlwaysOnTop -Caption -Border
-	Gui, 4:Add, Text,, Обновляем бинды. Процесс...
-	Gui, 4:Show
-}
-SetWorkingDir, %A_AppData%\Malinovka\
-FileRemoveDir, help_menu
-FileRemoveDir, profile
-FileCreateDir, profile
-SetWorkingDir, %A_AppData%\Malinovka\profile\
-
-;Loop, %A_WorkingDir%\*.ahk*
-;    FileDelete, A_LoopFileName
-
-fileexitServer := ["https://raw.githubusercontent.com/ViTokarev/malinovka/master/profile/"]
-filename := ["arrest.ahk", "b.ahk", "check.ahk", "crashwindow.ahk", "cuff.ahk", "eject.ahk", "givechest.ahk", "givenumber.ahk", "healme.ahk", "hello.ahk", "incar.ahk", "megafon.ahk", "members.ahk", "paper.ahk", "passOGIDBB.ahk", "pay.ahk", "photoface.ahk", "post.ahk", "remove.ahk", "removelic.ahk", "search.ahk", "su.ahk", "takecarpass.ahk", "takelic.ahk", "takepass.ahk", "ticket.ahk", "time.ahk", "tome.ahk", "uncuff.ahk", "unmask.ahk", "vehoff.ahk", "yes.ahk", "zakonFZpolice.ahk", "zakonFZpolice2.ahk", "zakonFZpolice3.ahk", "zakonFZpolice4.ahk", "zakonKoAP.ahk", "zakonYK.ahk", "zakonYstav.ahk", "zakonYstav2.ahk"]
-x=0
-loop
-{
-    UrlDownloadToFile % fileexitServer[1]filename[x], % filename[x]
-x++
-if x=41
-  Break
-}
-if (names = "ERROR")
-{
-	FileDelete, config.ini
-	UrlDownloadToFile https://raw.githubusercontent.com/ViTokarev/malinovka/master/profile/config.ini, config.ini
-}
-Else
-{
-	if (NewFlagUpgradeKey = 1)
-		{
-		FileDelete, config.ini
-		UrlDownloadToFile https://raw.githubusercontent.com/ViTokarev/malinovka/master/profile/config.ini, config.ini
-		NewFlagUpgradeKey := 0
-		}
-Reload
-}
-Gui, 4:Destroy
-Return
-
-ChangeName:
-Gui, 1:-AlwaysOnTop
-SetWorkingDir, %A_AppData%\Malinovka
-IniRead, names, configBTR.ini, mandata, yourname
-IniRead, rang, configBTR.ini, mandata, yourrang
-
-MainInterface.ChangeYourName(names, rang)
-Return
-
-ChangeNameDone:
-Gui, 1:-AlwaysOnTop
-GUI, Submit, NoHide
-SetWorkingDir, %A_AppData%\Malinovka
-IniWrite, %NewName%, configBTR.ini, mandata, yourname
-IniWrite, %NewRang%, configBTR.ini, mandata, yourrang
-MsgBox, Ваше имя: %NewName%`nВаше звание: %NewRang%
-Reload
-Return
-
-AddersHelp:
-Gui, 1:-AlwaysOnTop
-MsgBox, ОФИЦАЛЬНЫЙ КПК ОГИБДД Малиновка 01`n`nСвежие версии - https://github.com/ViTokarev/malinovka `n`nВК - https://vk.com/wagneror `n`nDiscord - sed_oi#7351`n`nВсегда ваш - Полковник ОГИБДД[01] Токарев В.П. (Август 2019)
-Return
-
-KeyOff:
-	SetWorkingDir, %A_AppData%\Malinovka\profile
-	IniWrite, "", config.ini, %Hotkeyname%, key
-	MainInterface.Edit_script_config(Hotkeyname)
-	SetWorkingDir, %A_AppData%\Malinovka
-Return
-
-MenuOnMain:
-	MainInterface.GuiMainMenu()
-Return
-
-OpenFolderScreens:
-	Run, %A_MyDocuments%\Malinovka\screens
-	Gui, -AlwaysOnTop
-Return
-
-OpenChatlog:
-	Run, %A_MyDocuments%\Malinovka\chatlog.txt
-	Gui, -AlwaysOnTop
 Return
