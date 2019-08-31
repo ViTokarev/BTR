@@ -1,4 +1,4 @@
-﻿; ###VERSION:0.5.1###
+﻿; ###VERSION:0.5.2###
 
 SetWorkingDir, %A_AppData%\Malinovka
 
@@ -62,7 +62,7 @@ class MainInterface
 		;Menu, ContextMain, Show
 		;Gui, Menu, ContextMain
 		;GuiControl +BackgroundFF9977, Button
-		Gui, 1:Show,, Binder Tokareva Revolution (beta v.0.5.1)
+		Gui, 1:Show,, Binder Tokareva Revolution (beta v.0.5.2)
 		Return
 	}
 
@@ -210,7 +210,7 @@ class MainInterface
 		keyforhelp := key
 		keyforhelp :=RegExReplace(keyforhelp,"\!","ALT + ")
 		keyforhelp :=RegExReplace(keyforhelp,"\^","CTRL + ")
-		this.list_hotkey[x] := [temping, keyforhelp, fileway, description]
+		this.list_hotkey[x] := [temping, key, fileway, description, keyforhelp]
 		Return
 	}
 
@@ -223,7 +223,7 @@ class MainInterface
 		keyforhelp := key
 		keyforhelp :=RegExReplace(keyforhelp,"\!","ALT + ")
 		keyforhelp :=RegExReplace(keyforhelp,"\^","CTRL + ")
-		this.list_hotkey_fromrepo[x] := [temping, keyforhelp, fileway, description]
+		this.list_hotkey_fromrepo[x] := [temping, key, fileway, description, keyforhelp]
 		Return
 	}
 
@@ -247,7 +247,7 @@ class MainInterface
 				temping := RegExReplace(A_LoopReadLine, ".*\[(.*)\]", "$1") ; получение заголовков ini
 				this.Get_ini_config(temping, x, WayProfile) ; загрузка всех данных о анк
 				;MsgBox % temping keycolum description
-				LV_Add("", this.list_hotkey[x][1], this.list_hotkey[x][2], this.list_hotkey[x][4])
+				LV_Add("", this.list_hotkey[x][1], this.list_hotkey[x][5], this.list_hotkey[x][4])
 				;MsgBox % A_LoopReadLine
 			}
 			}
@@ -303,6 +303,7 @@ class MainInterface
 		{
 			x++
 			;MsgBox % nameahk
+			keyforhelp := this.list_hotkey[x][5]
 			description := this.list_hotkey[x][4]
 			nameahk := this.list_hotkey[x][3]
 			key     := this.list_hotkey[x][2]
@@ -318,7 +319,6 @@ class MainInterface
 				hotkeymany = %hotkeymany%`nHotkey, `%key%temping%`%, %temping%
 				addresahk = %A_AppData%\Malinovka\profile\mybinds\%nameahk%
 				includetotext = %includetotext%`n#Include %addresahk%
-				keyforhelp := key
 				keyforhelp :=RegExReplace(keyforhelp,"\!","ALT + ")
 				keyforhelp :=RegExReplace(keyforhelp,"\^","CTRL + ")
 				forguikey = %forguikey%`n%keyforhelp%  %description%
@@ -510,8 +510,7 @@ iniHead :=
 				
 				MainInterface.Get_ini_config_fromrepo(temping, x) ; загрузка всех данных о анк
 				;MsgBox % temping
-				;MsgBox % temping keycolum description
-				LV_Add("", MainInterface.list_hotkey_fromrepo[x][1], MainInterface.list_hotkey_fromrepo[x][2], MainInterface.list_hotkey_fromrepo[x][4])
+				LV_Add("", MainInterface.list_hotkey_fromrepo[x][1], MainInterface.list_hotkey_fromrepo[x][5], MainInterface.list_hotkey_fromrepo[x][4])
 			}
 			}
 		}
@@ -536,7 +535,7 @@ iniHead := []
 				MainInterface.Get_ini_config(temping, x) ; загрузка всех данных о анк
 				;MsgBox % temping
 				;MsgBox % temping keycolum description
-				LV_Add("", MainInterface.list_hotkey[x][1], MainInterface.list_hotkey[x][2], MainInterface.list_hotkey[x][4])
+				LV_Add("", MainInterface.list_hotkey[x][1], MainInterface.list_hotkey[x][5], MainInterface.list_hotkey[x][4])
 				x++
 			}
 			}
