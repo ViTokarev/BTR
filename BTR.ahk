@@ -1,4 +1,4 @@
-﻿; ###VERSION:0.5.2###
+﻿; ###VERSION:0.5.3###
 
 SetWorkingDir, %A_AppData%\Malinovka
 
@@ -39,13 +39,13 @@ class MainInterface
 
 		Gui, 1:Add, Button, x15 y10 gAddCreateBind, Создать свой бинд
 
-		Gui, 1:Add, Button, x130 y10 gChangeName, Изменить свое имя
+		Gui, 1:Add, Button, x130 y10 gChangeName, Изменить свое имя или организацию
 
 		;Gui, 1:Add, Button, x250 y10 gLableDeleteHotkey, Удалить
 
-		Gui, 1:Add, Button, x250 y10 gDownload_menu, Менеджер загрузок
+		Gui, 1:Add, Button, x340 y10 gDownload_menu, Менеджер загрузок
 
-		Gui, 1:Add, Button, x400 y10 gDeleteAllMyBinds, Удалить все мои бинды
+		Gui, 1:Add, Button, x460 y10 gDeleteAllMyBinds, Удалить все мои бинды
 
 		Gui, 1:Add, Button, x600 y10 gMenuOnMain, Меню
 
@@ -55,14 +55,14 @@ class MainInterface
 
 		LV_ModifyCol(1, 110)
 		LV_ModifyCol(2, 150)
-		LV_ModifyCol(3, 400)
+		LV_ModifyCol(3, 300)
 
 
 		gosub Loadmybinds
 		;Menu, ContextMain, Show
 		;Gui, Menu, ContextMain
 		;GuiControl +BackgroundFF9977, Button
-		Gui, 1:Show,, Binder Tokareva Revolution (beta v.0.5.2)
+		Gui, 1:Show,, Binder Tokareva Revolution (beta v.0.5.3)
 		Return
 	}
 
@@ -79,8 +79,7 @@ class MainInterface
 		Gui, 10:Add, Button, gOpenChatlog, Chatlog
 		Gui, 10:Add, Button, gAddersHelp, Связь с разрабом
 		Gui, 10:Add, Button, gRestoreAHK, Полностью переустановить АНК
-
-		Gui, 10:Show, NA
+		Gui, 10:Show, AutoSize
 	}
 	
 	ChangeYourName(names, rang){
@@ -106,6 +105,11 @@ class MainInterface
 		if (names == "ERROR" or names == "Никита Носов")
 		{
 				Gui, 3:Add, Checkbox, vCheckDonwl %checking%, Скачать бинды выбранной организации
+				Gui, 3:Add, DropDownList, vChoiseToDonwl AltSubmit Choose%ChoiseDonwl%, ОГИБДД|МВД|БЦРБ|ВЧ
+		}
+		else
+		{
+				Gui, 3:Add, Checkbox, vCheckDonwl, Удалить ВСЁ бинды и скачать`nбинды выбранной организации
 				Gui, 3:Add, DropDownList, vChoiseToDonwl AltSubmit Choose%ChoiseDonwl%, ОГИБДД|МВД|БЦРБ|ВЧ
 		}
 		Gui, 3:Add, Button, gChangeNameDone, Сохранить
@@ -344,10 +348,25 @@ class MainInterface
 	Return
 	}
 }
+
+
+
 SetWorkingDir, %A_AppData%
 
 IfNotExist, %A_AppData%\Malinovka\MainBindsFileConfig.ahk
 {
+	;MsgBox, %A_AhkVersion%
+	if A_AhkVersion < 1.1.30.02
+	{
+		;Gui, 1:+Lastfound +ToolWindow +AlwaysOnTop -Caption -Border
+		Gui, 1:Font, bold s12
+		Gui, 1:Add, Text, Center, Версия самого AutoHotKey не подходит.`n
+		Gui, 1:Add, Text, Center, Ваша версия %A_AhkVersion% | Нужна 1.1.30.02 и выше
+		Gui, 1:Add, Text,, Я кому в теме сука писал обновить сам АНК? Теперь жми кнопку.
+		Gui, 1:Add, Button, gExitAhk, Скачать
+		Gui, 1:Show, Center
+		Return
+	}
 	FileRemoveDir, Malinovka, 1
 	FileCreateDir, Malinovka
 	gosub UpdateHelpListZakon
@@ -732,6 +751,8 @@ if (CheckDonwl == 1)
 	{
 	Gui, 1:Destroy
 	FileDelete, bufferfile.ini
+	FileRemoveDir, %A_AppData%\Malinovka\profile\mybinds, 1
+	FileCreateDir, %A_AppData%\Malinovka\profile\mybinds
 	Gui, 3:Destroy
 	Gui, 4:font, bold cRed s16, Arial
 	Gui, 4:+Lastfound +ToolWindow +AlwaysOnTop -Caption +Border
@@ -901,3 +922,7 @@ RestoreAHK:
 	}
 Reload
 Return
+
+ExitAhk:
+	Run, iexplore.exe https://www.autohotkey.com/download/ahk-install.exe
+ExitApp
