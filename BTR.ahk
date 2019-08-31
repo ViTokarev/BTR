@@ -1,4 +1,4 @@
-﻿; ###VERSION:0.5.0###
+﻿; ###VERSION:0.5.1###
 
 SetWorkingDir, %A_AppData%\Malinovka
 
@@ -23,6 +23,7 @@ class MainInterface
 	Main_gui(){ ; основное окно
 		Gui, Destroy
 		global ChooseORGWrite
+		;Gui, Color, d0a1d4
 		SetWorkingDir, %A_AppData%\Malinovka
 
 		;MsgBox, %chooseORG%
@@ -48,18 +49,20 @@ class MainInterface
 
 		Gui, 1:Add, Button, x600 y10 gMenuOnMain, Меню
 
-		Gui, 1:Add, Text, x15 y410, Нажми крестик на окне, чтобы бинды вкл. После, на кнопку "Delete" показывает все твои бинды.
-		Gui, 1:Add, Text, x530 y410, AHK by Vitalik_Tokarev
+		Gui, 1:Add, Text, x15 y417, Закрой окно, чтобы все бинды вкл.    После, на кнопку "Delete" показывает все твои бинды.
+		Gui, 1:Add, Text, x15 y440, Кнопки ATL+R перезагружают АНК. Если у вас включился бинд и хотите остановить, нажимайте сразу.
+		Gui, 1:Add, Text, x530 y415, AHK by Vitalik_Tokarev
 
-		LV_ModifyCol(1, 100)
-		LV_ModifyCol(2, 100)
+		LV_ModifyCol(1, 110)
+		LV_ModifyCol(2, 150)
 		LV_ModifyCol(3, 400)
 
 
 		gosub Loadmybinds
 		;Menu, ContextMain, Show
 		;Gui, Menu, ContextMain
-		Gui, 1:Show,, BRT (beta v.0.5.0)
+		;GuiControl +BackgroundFF9977, Button
+		Gui, 1:Show,, Binder Tokareva Revolution (beta v.0.5.1)
 		Return
 	}
 
@@ -75,6 +78,7 @@ class MainInterface
 		Gui, 10:Add, Button, gOpenFolderScreens, СКРИНЫ
 		Gui, 10:Add, Button, gOpenChatlog, Chatlog
 		Gui, 10:Add, Button, gAddersHelp, Связь с разрабом
+		Gui, 10:Add, Button, gRestoreAHK, Полностью переустановить АНК
 
 		Gui, 10:Show, NA
 	}
@@ -121,8 +125,8 @@ class MainInterface
 		
 		Gui, 1:Add, ListView, r20 w650 gClickDownlList vChoiseCheckedDownl Checked Grid AltSubmit, Название|Hotkeys|Описание функции
 
-		LV_ModifyCol(1, 100)
-		LV_ModifyCol(2, 100)
+		LV_ModifyCol(1, 110)
+		LV_ModifyCol(2, 150)
 		LV_ModifyCol(3, 300)
 
 		Gui, 1:Add, Button, x500 y410 gDonwloadChoise, Скачать выбранные
@@ -203,7 +207,10 @@ class MainInterface
 		IniRead, description, config.ini, %temping%, description
 		;MsgBox % A_WorkingDir
 		;MsgBox % temping key fileway description
-		this.list_hotkey[x] := [temping, key, fileway, description]
+		keyforhelp := key
+		keyforhelp :=RegExReplace(keyforhelp,"\!","ALT + ")
+		keyforhelp :=RegExReplace(keyforhelp,"\^","CTRL + ")
+		this.list_hotkey[x] := [temping, keyforhelp, fileway, description]
 		Return
 	}
 
@@ -213,7 +220,10 @@ class MainInterface
 		IniRead, fileway, bufferfile.ini, %temping%, fileway
 		IniRead, description, bufferfile.ini, %temping%, description
 		;MsgBox % temping fileway description
-		this.list_hotkey_fromrepo[x] := [temping, key, fileway, description]
+		keyforhelp := key
+		keyforhelp :=RegExReplace(keyforhelp,"\!","ALT + ")
+		keyforhelp :=RegExReplace(keyforhelp,"\^","CTRL + ")
+		this.list_hotkey_fromrepo[x] := [temping, keyforhelp, fileway, description]
 		Return
 	}
 
@@ -478,13 +488,14 @@ Download_menu_list:
 			;	msgbox Сервер с биндами не отвечает. Повторите позже.
 			Text := WebRequest.ResponseText
 			WebRequest := ""
+			;MsgBox, %Text%
 			FileAppend, %Text%, bufferfile.ini
 			return
 		}
 
 x=0
-MainInterface.list_hotkey_fromrepo := []
-iniHead := []
+MainInterface.list_hotkey_fromrepo :=
+iniHead :=
 		Loop, read, bufferfile.ini
 		{
 			Loop, parse, A_LoopReadLine, %A_Tab%
@@ -504,6 +515,7 @@ iniHead := []
 			}
 			}
 		}
+
 Return
 
 Loadmybinds:
@@ -587,6 +599,7 @@ DonwloadChoise:
 	GuiControl, 4:,MyTextDonwload, Загрузка завершена.
 	Sleep, 500
 	Gui, 4:Destroy
+	MainInterface.Main_gui()
 Return
 
 ClickDownlList:
@@ -877,4 +890,15 @@ Return
 		MsgBox, Данные не сохранились, нажмите "сохранить"
 	Else
 		MsgBox, Введите свое имя и звание, без него АНК не будет работать.
+Return
+
+RestoreAHK:
+	SetWorkingDir, %A_Appdata%
+	MsgBox, 4, ВНИМАНИЕ, Вы желаете полностью ВСЕ УДАЛИТЬ и установить?
+	IfMsgBox, Yes
+	{
+	FileRemoveDir, Malinovka, 1
+	FileCreateDir, Malinovka
+	}
+Reload
 Return
