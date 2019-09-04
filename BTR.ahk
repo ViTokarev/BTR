@@ -1,4 +1,4 @@
-﻿; ###VERSION:0.5.3###
+﻿; ###VERSION:0.5.5###
 
 SetWorkingDir, %A_AppData%\Malinovka
 
@@ -22,6 +22,7 @@ class MainInterface
 
 	Main_gui(){ ; основное окно
 		Gui, Destroy
+		Gui, 1:Default
 		global ChooseORGWrite
 		;Gui, Color, d0a1d4
 		SetWorkingDir, %A_AppData%\Malinovka
@@ -47,11 +48,12 @@ class MainInterface
 
 		Gui, 1:Add, Button, x460 y10 gDeleteAllMyBinds, Удалить все мои бинды
 
-		Gui, 1:Add, Button, x600 y10 gMenuOnMain, Меню
-
 		Gui, 1:Add, Text, x15 y417, Закрой окно, чтобы все бинды вкл.    После, на кнопку "Delete" показывает все твои бинды.
 		Gui, 1:Add, Text, x15 y440, Кнопки ATL+R перезагружают АНК. Если у вас включился бинд и хотите остановить, нажимайте сразу.
 		Gui, 1:Add, Text, x530 y415, AHK by Vitalik_Tokarev
+		Gui, 1:Font, bold, Arial
+		Gui, 1:Add, Button, x600 y10 gMenuOnMain, Меню
+		Gui, 1:Add, Text, x15 y460 cRed, Чтобы вызвать этот менеджер, нажми кнопку Insert (она же: Ins). Скорее всего рядом с Delete.
 
 		LV_ModifyCol(1, 110)
 		LV_ModifyCol(2, 150)
@@ -62,23 +64,28 @@ class MainInterface
 		;Menu, ContextMain, Show
 		;Gui, Menu, ContextMain
 		;GuiControl +BackgroundFF9977, Button
-		Gui, 1:Show,, Binder Tokareva Revolution (beta v.0.5.3)
+		Gui, 1:Show,, Binder Tokareva Revolution (beta v.0.5.5)
 		Return
 	}
 
 	Udpate_gui(){
+		Gui, 1:Default
 		LV_Delete()
 		gosub Loadmybinds
 		Return
 	}
 
 	GuiMainMenu(){
+		SetWorkingDir, %A_AppData%\Malinovka
+		IniRead, invis, configBTR.ini, options, invis
+		Gui, 10:Destroy
 		Gui, 10:Font, bolt s14
 		Gui, 10:Add, Button, gOpenFolderMain, Папка АНК
 		Gui, 10:Add, Button, gOpenFolderScreens, СКРИНЫ
 		Gui, 10:Add, Button, gOpenChatlog, Chatlog
 		Gui, 10:Add, Button, gAddersHelp, Связь с разрабом
 		Gui, 10:Add, Button, gRestoreAHK, Полностью переустановить АНК
+		Gui, 10:Add, Checkbox, Checked%invis% vInvise, Не открывать менеджер при запуске (запуск в скрытом режиме)
 		Gui, 10:Show, AutoSize
 	}
 	
@@ -127,11 +134,12 @@ class MainInterface
 		
 		Gui, 1:Add, DropDownList, vChooseORGWrite gDownload_menu_list Altsubmit Choose%chooseORG%, ОГИБДД|МВД|БЦРБ|ВЧ ; то что выбранно, загружает, перекида на функцию
 		
-		Gui, 1:Add, ListView, r20 w650 gClickDownlList vChoiseCheckedDownl Checked Grid AltSubmit, Название|Hotkeys|Описание функции
+		Gui, 1:Add, ListView, r20 w650 gClickDownlList vChoiseCheckedDownl Checked Grid AltSubmit, Название|Hotkeys|Описание функции|гк
 
 		LV_ModifyCol(1, 110)
 		LV_ModifyCol(2, 150)
 		LV_ModifyCol(3, 300)
+		LV_ModifyCol(4, 60)
 
 		Gui, 1:Add, Button, x500 y410 gDonwloadChoise, Скачать выбранные
 		Gui, 1:Add, Button, x15 y410 gRCheckAlloff, Выбрать все
@@ -172,7 +180,7 @@ class MainInterface
 		fileway := Hotkeyname . ".ahk"
 		FileDelete, %fileway%
 		FileAppend, %fileahk%, %fileway%,UTF-8
-		Gui, 2:Destroy
+		;Gui, 1:Destroy
 		MainInterface.Udpate_gui()
 		Return
 	}
@@ -349,14 +357,14 @@ class MainInterface
 	}
 }
 
-
+; начало основы метка
 
 SetWorkingDir, %A_AppData%
 
 IfNotExist, %A_AppData%\Malinovka\MainBindsFileConfig.ahk
 {
-	;MsgBox, %A_AhkVersion%
-	if A_AhkVersion < 1.1.30.02
+	MsgBox, %A_AhkVersion%
+	if A_AhkVersion < 1.1.30.01
 	{
 		;Gui, 1:+Lastfound +ToolWindow +AlwaysOnTop -Caption -Border
 		Gui, 1:Font, bold s12
@@ -378,6 +386,10 @@ way = %A_ScriptDir%\%A_ScriptName%
 SetWorkingDir, %A_AppData%\Malinovka
 IniWrite, %way%, configBTR.ini, options, filewayBTR
 SetWorkingDir, %way%
+
+IniRead, invise, configBTR.ini, options, invis
+if (invise = "ERROR")
+	IniWrite, 0, configBTR.ini, options, invis
 
 IniRead, chooseORG, configBTR.ini, options, ChoiseProfile
 if (chooseORG = "ERROR")
@@ -425,6 +437,15 @@ UrlDownloadToVar(URL, UserAgent = "")
 				MsgBox, Ок, конечно, но могли добавить новые фичи для стабильности.
 		}
 UpdateOk:
+
+IniRead, triggerona, configBTR.ini, options, triggeron
+if (invise = 1 && triggerona = 1)
+{
+	Run "%A_AppData%\Malinovka\MainBindsFileConfig.ahk"
+	ExitApp
+}
+Else
+	IniWrite, 1, configBTR.ini, options, triggeron
 
 if (names = "ERROR")
 	Return
@@ -529,7 +550,7 @@ iniHead :=
 				
 				MainInterface.Get_ini_config_fromrepo(temping, x) ; загрузка всех данных о анк
 				;MsgBox % temping
-				LV_Add("", MainInterface.list_hotkey_fromrepo[x][1], MainInterface.list_hotkey_fromrepo[x][5], MainInterface.list_hotkey_fromrepo[x][4])
+				LV_Add("", MainInterface.list_hotkey_fromrepo[x][1], MainInterface.list_hotkey_fromrepo[x][5], MainInterface.list_hotkey_fromrepo[x][4], MainInterface.list_hotkey_fromrepo[x][2])
 			}
 			}
 		}
@@ -588,7 +609,7 @@ DonwloadChoise:
 	        break
 	    ;CheckedRows .= CheckedRows ? "," RowNumber : RowNumber 
 	    LV_GetText(NameBindDownl, RowNumber, 1)
-	    LV_GetText(NameBindKey, RowNumber, 2)
+	    LV_GetText(NameBindKey, RowNumber, 4)
 	    LV_GetText(NameBindDescript, RowNumber, 3)
 	    NameAllRows .= NameAllRows ? "," NameBindDownl : NameBindDownl
 	    NameBindDownlFor := NameBindDownl . ".ahk"
@@ -697,6 +718,13 @@ GuiClose:
 	MainInterface.Reconfig_ahk_to_Main()
 	Run "%A_AppData%\Malinovka\MainBindsFileConfig.ahk"
 ExitApp
+
+10GuiClose:
+Gui, 10:Submit
+SetWorkingDir, %A_AppData%\Malinovka
+IniWrite, %Invise%, configBTR.ini, options, invis
+Gui, 10:Destroy
+Return
 
 GuiContextMenu:
 	Menu, MyMenuBar, Add, Редактировать, LableEditHotkey

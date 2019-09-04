@@ -1,4 +1,4 @@
-; ###VERSION.0.2###
+; ###VERSION.0.3###
 SetWorkingDir, %A_AppData%\Malinovka
 IniRead, names, configBTR.ini, mandata, yourname
 IniRead, rang, configBTR.ini, mandata, yourrang
@@ -13,6 +13,8 @@ SoundBeep, 750
 goto MainCode
 
 Ins::
+	SetWorkingDir, %A_AppData%\Malinovka
+	IniWrite, 0, configBTR.ini, options, triggeron
 	way = %A_WorkingDir%\%A_ScriptName%
 	SetWorkingDir, %A_AppData%\Malinovka
 	IniRead, wayToBTR, configBTR.ini, options, filewayBTR
