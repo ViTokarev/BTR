@@ -64,7 +64,7 @@ class MainInterface
 		;Menu, ContextMain, Show
 		;Gui, Menu, ContextMain
 		;GuiControl +BackgroundFF9977, Button
-		Gui, 1:Show,, Binder Tokareva Revolution (beta v.0.5.5)
+		Gui, 1:Show,, Binder Tokareva Revolution (beta v.0.5.6) UDP: добавил мэрию
 		Return
 	}
 
