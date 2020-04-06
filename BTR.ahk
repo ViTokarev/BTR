@@ -1,4 +1,4 @@
-﻿; ###VERSION:0.5.5###
+﻿; ###VERSION:0.5.6###
 
 SetWorkingDir, %A_AppData%\Malinovka
 
@@ -17,7 +17,7 @@ class MainInterface
 	;AHKscriptsDonw := [ogibdd, mvd, bcrb, vich]
 
 	fileexitServer := ["https://raw.githubusercontent.com/ViTokarev/malinovka/master/"]
-	NameProfile := ["ОГИБДД", "МВД", "БЦРБ", "ВЧ"]
+	NameProfile := ["ОГИБДД", "МВД", "БЦРБ", "Мэрия"]
 	AHKscriptsDonw := [ogibdd, mvd, bcrb, vich]
 
 	Main_gui(){ ; основное окно
@@ -29,7 +29,7 @@ class MainInterface
 
 		;MsgBox, %chooseORG%
 		
-		;Gui, 1:Add, DropDownList, vChooseORGWrite gWriteChoise Altsubmit Choose%chooseORG%, ОГИБДД|МВД|БЦРБ|ВЧ ; то что выбранно, загружает, перекида на функцию
+		;Gui, 1:Add, DropDownList, vChooseORGWrite gWriteChoise Altsubmit Choose%chooseORG%, ОГИБДД|МВД|БЦРБ|Мэрия ; то что выбранно, загружает, перекида на функцию
 		;Menu, ContextMain, Add, Создать свой бинд, AddCreateBind 
 		;Menu, ContextMain, Add, Изменить имя, ChangeName 
 		;Menu, ContextMain, Add, Менеджер загрузок, Download_menu
@@ -112,12 +112,12 @@ class MainInterface
 		if (names == "ERROR" or names == "Никита Носов")
 		{
 				Gui, 3:Add, Checkbox, vCheckDonwl %checking%, Скачать бинды выбранной организации
-				Gui, 3:Add, DropDownList, vChoiseToDonwl AltSubmit Choose%ChoiseDonwl%, ОГИБДД|МВД|БЦРБ|ВЧ
+				Gui, 3:Add, DropDownList, vChoiseToDonwl AltSubmit Choose%ChoiseDonwl%, ОГИБДД|МВД|БЦРБ|Мэрия
 		}
 		else
 		{
 				Gui, 3:Add, Checkbox, vCheckDonwl, Удалить ВСЁ бинды и скачать`nбинды выбранной организации
-				Gui, 3:Add, DropDownList, vChoiseToDonwl AltSubmit Choose%ChoiseDonwl%, ОГИБДД|МВД|БЦРБ|ВЧ
+				Gui, 3:Add, DropDownList, vChoiseToDonwl AltSubmit Choose%ChoiseDonwl%, ОГИБДД|МВД|БЦРБ|Мэрия
 		}
 		Gui, 3:Add, Button, gChangeNameDone, Сохранить
 		Gui, 1:-AlwaysOnTop
@@ -132,7 +132,7 @@ class MainInterface
 		global ChoiseCheckedDownl
 		SetWorkingDir, %A_AppData%\Malinovka
 		
-		Gui, 1:Add, DropDownList, vChooseORGWrite gDownload_menu_list Altsubmit Choose%chooseORG%, ОГИБДД|МВД|БЦРБ|ВЧ ; то что выбранно, загружает, перекида на функцию
+		Gui, 1:Add, DropDownList, vChooseORGWrite gDownload_menu_list Altsubmit Choose%chooseORG%, ОГИБДД|МВД|БЦРБ|Мэрия ; то что выбранно, загружает, перекида на функцию
 		
 		Gui, 1:Add, ListView, r20 w650 gClickDownlList vChoiseCheckedDownl Checked Grid AltSubmit, Название|Hotkeys|Описание функции|гк
 
@@ -459,7 +459,7 @@ Return
 WriteChoise:
 Gui, Submit, NoHide
 IniWrite, %ChooseORGWrite%, configBTR.ini, options, ChoiseProfile
-NameProfile := ["ОГИБДД", "МВД", "БЦРБ", "ВЧ"]
+NameProfile := ["ОГИБДД", "МВД", "БЦРБ", "Мэрия"]
 
 		WayProfileOGIBDD = %A_AppData%\Malinovka\profile\ogibdd
 		WayProfileMVD = %A_AppData%\Malinovka\profile\mvd
