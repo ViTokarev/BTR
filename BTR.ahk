@@ -1,4 +1,4 @@
-﻿; ###VERSION:0.5.6###
+﻿; ###VERSION:0.5.7###
 
 SetWorkingDir, %A_AppData%\Malinovka
 
@@ -64,7 +64,7 @@ class MainInterface
 		;Menu, ContextMain, Show
 		;Gui, Menu, ContextMain
 		;GuiControl +BackgroundFF9977, Button
-		Gui, 1:Show,, Binder Tokareva Revolution (beta v.0.5.6) UPD: добавил мэрию
+		Gui, 1:Show,, Binder Tokareva Revolution (beta v.0.5.7) UPD 26.04.20: Остановить и возобновить биндер (без выхода из программы) - ALT+F12
 		Return
 	}
 
