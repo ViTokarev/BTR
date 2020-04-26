@@ -1,4 +1,4 @@
-; ###VERSION.0.3###
+; ###VERSION.0.4###
 SetWorkingDir, %A_AppData%\Malinovka
 IniRead, names, configBTR.ini, mandata, yourname
 IniRead, rang, configBTR.ini, mandata, yourrang
@@ -11,6 +11,8 @@ SetWorkingDir, %A_AppData%\Malinovka\profile\mybinds
 
 SoundBeep, 750
 goto MainCode
+
+!F12::Suspend
 
 Ins::
 	SetWorkingDir, %A_AppData%\Malinovka
