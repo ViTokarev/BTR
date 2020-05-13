@@ -1,4 +1,4 @@
-﻿; ###VERSION:0.5.7###
+﻿; ###VERSION:0.5.8###
 
 SetWorkingDir, %A_AppData%\Malinovka
 
@@ -64,7 +64,8 @@ class MainInterface
 		;Menu, ContextMain, Show
 		;Gui, Menu, ContextMain
 		;GuiControl +BackgroundFF9977, Button
-		Gui, 1:Show,, Binder Tokareva Revolution (beta v.0.5.7) UPD 26.04.20: ALT+F12 пауза для биндов
+		Gui, 1:Add, Button, x580 y450 gVkGroup, Группа ВК
+		Gui, 1:Show,, Binder Tokareva Revolution (beta v.0.5.8) UPD 13.05.20: Добавлена кнопка ВК
 		Return
 	}
 
@@ -950,6 +951,10 @@ RestoreAHK:
 	}
 Reload
 Return
+
+VkGroup:
+	Run, https://vk.com/vitokarev
+	Return
 
 ExitAhk:
 	Run, iexplore.exe https://www.autohotkey.com/download/ahk-install.exe
