@@ -1,4 +1,4 @@
-﻿; ###VERSION:0.5.9###
+﻿; ###VERSION:0.6.0###
 
 SetWorkingDir, %A_AppData%\Malinovka
 
@@ -432,6 +432,7 @@ UrlDownloadToVar(URL, UserAgent = "")
 				{
 				UrlDownloadToFile, https://raw.githubusercontent.com/ViTokarev/malinovka/master/BTR.ahk, %A_ScriptDir%\%A_ScriptName%
 				UrlDownloadToFile, https://raw.githubusercontent.com/ViTokarev/malinovka/master/MainBindsFileConfig.ahk, %A_AppData%\Malinovka\MainBindsFileConfig.ahk
+				Run, https://clc.to/btrupdate
 				Reload
 				}
 			Else
