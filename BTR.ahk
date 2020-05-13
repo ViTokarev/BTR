@@ -1,4 +1,4 @@
-﻿; ###VERSION:0.5.8###
+﻿; ###VERSION:0.5.9###
 
 SetWorkingDir, %A_AppData%\Malinovka
 
@@ -65,7 +65,7 @@ class MainInterface
 		;Gui, Menu, ContextMain
 		;GuiControl +BackgroundFF9977, Button
 		Gui, 1:Add, Button, x580 y450 gVkGroup, Группа ВК
-		Gui, 1:Show,, Binder Tokareva Revolution (beta v.0.5.8) UPD 13.05.20: Добавлена кнопка ВК
+		Gui, 1:Show,, Binder Tokareva Revolution (beta v.0.5.8) UPD 13.05.20: Добавлена кнопка ВК - new BTR
 		Return
 	}
 
