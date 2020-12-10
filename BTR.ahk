@@ -427,7 +427,7 @@ UrlDownloadToVar(URL, UserAgent = "")
 	Else
 		{
 		Gui, -AlwaysOnTop
-		MsgBox, 4, Обновление, Есть новая версия программы! Вы хотите обновить?`n`n(займет пару сек)
+		MsgBox, 4, ВЫШЕЛ НОВЫЙ ПОЛНОЦЕННЫЙ BTR! (не ahk и он сам не обновится. У вас старая версия программы)`n`n СКАЧАТЬ МОЖНО В ГРУППЕ`n`nОбновление, Есть новая версия программы! Вы хотите обновить?`n`n(займет пару сек)
 			IfMsgBox Yes
 				{
 				UrlDownloadToFile, https://raw.githubusercontent.com/ViTokarev/malinovka/master/BTR.ahk, %A_ScriptDir%\%A_ScriptName%
