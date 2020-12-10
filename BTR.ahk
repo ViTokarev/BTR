@@ -1,4 +1,4 @@
-﻿; ###VERSION:0.6.0###
+﻿; ###VERSION:0.6.1###
 
 SetWorkingDir, %A_AppData%\Malinovka
 
@@ -65,7 +65,7 @@ class MainInterface
 		;Gui, Menu, ContextMain
 		;GuiControl +BackgroundFF9977, Button
 		Gui, 1:Add, Button, x580 y450 gVkGroup, Группа ВК
-		Gui, 1:Show,, Binder Tokareva Revolution (beta v.0.5.8) UPD 13.05.20: Добавлена кнопка ВК - new BTR
+		Gui, 1:Show,, Binder Tokareva Revolution (beta v.0.6.1) UPD 10.12.20: НОВЫЙ BTR УЖЕ В ГРУППЕ ВК!
 		Return
 	}
 
@@ -488,7 +488,7 @@ Return
 
 AddersHelp:
 Gui, 1:-AlwaysOnTop
-MsgBox, ОФИЦАЛЬНЫЙ КПК ОГИБДД Малиновка 01`n`nСвежие версии - https://github.com/ViTokarev/malinovka `n`nВК - https://vk.com/wagneror `n`nDiscord - sed_oi#7351`n`nВсегда ваш - Полковник ОГИБДД[01] Токарев В.П. (Август 2019)
+MsgBox, ОФИЦАЛЬНЫЙ КПК ОГИБДД Малиновка 01`n`nСвежие версии - https://github.com/ViTokarev/BTR/releases/latest `n`nВК - https://vk.com/vitokarev `n`nВсегда ваш - Полковник ОГИБДД[01] Токарев В.П. (Август 2019)
 Return
 
 SaveNewBind:
